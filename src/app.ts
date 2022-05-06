@@ -1,16 +1,23 @@
 import express from "express";
+import http from "http";
+import { WebSocketServer } from "ws";
+import setupWSConnection from "./websockets/setupWSConnection";
 
-export const app = express();
+const app = express();
+const server = http.createServer(app);
+const wss = new WebSocketServer({ noServer: true });
 
-// app.use(express.static(config.server.craFilePath));
+wss.on("connection", function connection(ws) {
+  setupWSConnection(ws);
+});
 
-// app.get("/", (_req, res) => {
-//   res.sendFile(path.resolve(config.server.craFilePath, "index.html"));
-// });
+server.on("upgrade", (req, socket, head) => {
+  // check auth
+  console.log("upgrade detected.");
 
-// app.get("/api", (_req, res) => {
-//   res.set("Content-Type", "application/json");
-//   res.send('{"message":"Hello from the custom server!"}');
-// });
+  wss.handleUpgrade(req, socket, head, (ws) => {
+    wss.emit("connection", ws, req);
+  });
+});
 
-export default app;
+export default server;
