@@ -1,8 +1,6 @@
-import path from "path";
 export const config = {
   server: {
-    port: Number(process.env.PORT) || 8080,
-    craFilePath: path.resolve(__dirname, "../../client/build"),
+    port: Number(process.env.PORT) || 3001,
   },
   db: {
     host: process.env.DB_HOST as string,

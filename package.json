@@ -30,7 +30,7 @@
   "scripts": {
     "test": "jest --watchAll",
     "build": "rm -rf dist && tsc",
-    "start": "nodemon src/index.ts",
+    "start": "env-cmd -f .env.development nodemon src/index.ts",
     "create-tables": "yarn run docker-up && env-cmd -f .env.development ts-node src/database/tables.ts",
     "docker-up": "cd .devcontainer && docker-compose up -d && cd ..",
     "docker-down": "cd .devcontainer && docker-compose down && cd .."
