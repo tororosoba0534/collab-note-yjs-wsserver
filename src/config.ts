@@ -14,6 +14,7 @@ const config = {
     host: process.env.REDIS_HOST as string,
     port: Number(process.env.REDIS_PORT),
     keyPrefix: process.env.REDIS_PREFIX as string,
+    connectionURI: process.env.REDIS_URL as string,
   },
 };
 
