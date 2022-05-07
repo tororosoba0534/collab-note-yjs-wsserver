@@ -1,4 +1,4 @@
-export const config = {
+const config = {
   server: {
     port: Number(process.env.PORT) || 3001,
   },
@@ -9,4 +9,11 @@ export const config = {
     name: process.env.DB_NAME as string,
     password: process.env.DB_PASSWORD as string,
   },
+  redis: {
+    host: process.env.REDIS_HOST as string,
+    port: Number(process.env.REDIS_PORT),
+    keyPrefix: process.env.REDIS_PREFIX as string,
+  },
 };
+
+export default config;

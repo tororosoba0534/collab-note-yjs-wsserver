@@ -7,8 +7,8 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ noServer: true });
 
-wss.on("connection", (conn, req) => {
-  setupWSConnection(conn, req);
+wss.on("connection", async (conn, req) => {
+  await setupWSConnection(conn, req);
 });
 
 server.on("upgrade", (req, socket, head) => {
