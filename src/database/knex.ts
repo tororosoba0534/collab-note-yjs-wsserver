@@ -10,7 +10,10 @@ const knex = Knex({
   //   password: config.db.password,
   //   database: config.db.name,
   // },
-  connection: config.db.connectionURI,
+  connection: {
+    connectionString: config.db.connectionURI,
+    ssl: { rejectUnauthorized: false },
+  },
 });
 
 export default knex;
