@@ -22,9 +22,9 @@ const setupWSConnection = async (
   doc.conns.set(conn, new Set());
 
   conn.on("message", (message: WSData) => {
-    console.log("received: %s", message);
-    console.log("from ", req.url);
-    console.log("docname: ", docname);
+    // console.log("received: %s", message);
+    console.log("Message came from ", req.url);
+    // console.log("docname: ", docname);
     messageListener(conn, req, doc, new Uint8Array(message as ArrayBuffer));
   });
 

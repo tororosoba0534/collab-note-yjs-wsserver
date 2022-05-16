@@ -9,6 +9,9 @@ const config = {
   redis: {
     CONNECTION_URI: process.env.REDIS_URL as string,
   },
+  front: {
+    ORIGIN: process.env.FRONT_ORIGIN as string,
+  },
 };
 
 export default config;

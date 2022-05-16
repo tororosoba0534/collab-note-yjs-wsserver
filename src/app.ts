@@ -1,11 +1,14 @@
 import express from "express";
 import http from "http";
 import { WebSocketServer } from "ws";
+import addAuthMiddlewares from "./auth/addAuthMiddlewares";
 import setupWSConnection from "./websockets/setupWSConnection";
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ noServer: true });
+
+addAuthMiddlewares(app);
 
 wss.on("connection", async (conn, req) => {
   await setupWSConnection(conn, req);

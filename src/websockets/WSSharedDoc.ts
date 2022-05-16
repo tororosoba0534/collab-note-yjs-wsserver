@@ -21,7 +21,7 @@ const updateHandler = async (
   origin: any,
   doc: WSSharedDoc
 ): Promise<void> => {
-  console.log("updateHandler called!! in WSSharedDoc.ts");
+  console.log("Y.Doc update detected!");
   let shouldPersist = false;
 
   if (origin instanceof WebSocket && doc.conns.has(origin)) {
