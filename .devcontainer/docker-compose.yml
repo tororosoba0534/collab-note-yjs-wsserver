@@ -1,25 +1,10 @@
 version: "3.8"
 services:
-  node-dev:
-    container_name: node
-    image: node:18
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    volumes:
-      # Mounts the project folder to '/workspace'. The target path inside the container
-      # should match what your application expects. In this case, the compose file is
-      # in a sub-folder, so you will mount '..'. You would then reference this path as the
-      # 'workspaceFolder' in '.devcontainer/devcontainer.json' so VS Code starts here.
-      - ..:/workspace:cached
-    env_file:
-      - ../.env.development
-    command: /bin/sh -c "while sleep 1000; do :; done"
   pg-dev:
     container_name: pg
     image: postgres:12
     ports:
-      - "5431:5431"
+      - "5431:5432"
     environment:
       POSTGRES_USER: dev
       POSTGRES_PASSWORD: dev

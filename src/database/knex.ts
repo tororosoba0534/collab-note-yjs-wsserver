@@ -1,19 +1,18 @@
 import Knex from "knex";
 import config from "../config";
 
-const knex = Knex({
-  client: "pg",
-  // connection: {
-  //   host: config.db.host,
-  //   port: config.db.port,
-  //   user: config.db.user,
-  //   password: config.db.password,
-  //   database: config.db.name,
-  // },
-  connection: {
-    connectionString: config.db.connectionURI,
-    ssl: { rejectUnauthorized: false },
-  },
-});
+const knex =
+  config.NODE_ENV === "production"
+    ? Knex({
+        client: "pg",
+        connection: {
+          connectionString: config.db.CONNECTION_URI,
+          ssl: { rejectUnauthorized: false },
+        },
+      })
+    : Knex({
+        client: "pg",
+        connection: config.db.CONNECTION_URI,
+      });
 
 export default knex;

@@ -14,6 +14,7 @@ wss.on("connection", async (conn, req) => {
 server.on("upgrade", (req, socket, head) => {
   // check auth
   console.log("upgrade detected.");
+  console.log(`url: ${req.url}`);
 
   wss.handleUpgrade(req, socket, head, (ws) => {
     wss.emit("connection", ws, req);

@@ -1,20 +1,13 @@
 const config = {
+  NODE_ENV: process.env.NODE_ENV,
   server: {
-    port: Number(process.env.PORT) || 3001,
+    PORT: Number(process.env.PORT),
   },
   db: {
-    host: process.env.DB_HOST as string,
-    port: Number(process.env.DB_PORT),
-    user: process.env.DB_USER as string,
-    name: process.env.DB_NAME as string,
-    password: process.env.DB_PASSWORD as string,
-    connectionURI: process.env.DATABASE_URL as string,
+    CONNECTION_URI: process.env.DATABASE_URL as string,
   },
   redis: {
-    host: process.env.REDIS_HOST as string,
-    port: Number(process.env.REDIS_PORT),
-    keyPrefix: process.env.REDIS_PREFIX as string,
-    connectionURI: process.env.REDIS_URL as string,
+    CONNECTION_URI: process.env.REDIS_URL as string,
   },
 };
 
