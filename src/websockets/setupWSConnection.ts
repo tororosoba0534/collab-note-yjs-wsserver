@@ -17,14 +17,14 @@ const setupWSConnection = async (
   req: http.IncomingMessage
 ) => {
   conn.binaryType = "arraybuffer";
-  const docname = req.url?.slice(1).split("?")[0] as string;
+  const docname = req.url?.slice(1).split("?")[0].split("/")[1] as string;
   const [doc, isNew] = getYDoc(docname);
   doc.conns.set(conn, new Set());
 
   conn.on("message", (message: WSData) => {
     // console.log("received: %s", message);
     console.log("Message came from ", req.url);
-    // console.log("docname: ", docname);
+    console.log("docname: ", docname);
     messageListener(conn, req, doc, new Uint8Array(message as ArrayBuffer));
   });
 

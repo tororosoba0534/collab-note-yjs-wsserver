@@ -3,7 +3,7 @@ import http from "http";
 import { WebSocketServer } from "ws";
 import addAuthMiddlewares from "./auth/addAuthMiddlewares";
 import setupWSConnection from "./websockets/setupWSConnection";
-import { parse as cookieParse } from "cookie";
+import { authOnUpgrade } from "./auth/authOnUpgrade";
 
 const app = express();
 const server = http.createServer(app);
@@ -19,9 +19,8 @@ server.on("upgrade", (req, socket, head) => {
   console.log("upgrade detected.");
   console.log(`url: ${req.url}`);
 
-  const sessionToken = cookieParse(req.headers.cookie || "")?.session_token;
-  console.log(`sessionToken: ${sessionToken}`);
-  if (!sessionToken) {
+  const result = authOnUpgrade(req, socket);
+  if (!result) {
     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
     socket.destroy();
     console.log("authentication failed");
