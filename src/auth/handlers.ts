@@ -46,6 +46,8 @@ export const loginHandler: RequestHandler = (req, res) => {
 
   // create a session containing information about the user and expiry time
   const session = new Session(username, expiresAt);
+
+  console.log(`session_token generated: ${sessionToken}`);
   // add the session information to the sessions map
   sessionsStore.set(sessionToken, session);
 
@@ -75,6 +77,7 @@ export const checkAuthHandler: RequestHandler = (req, res) => {
 
   // We can obtain the session token from the requests cookies, which come with every request
   const sessionToken = req.cookies.session_token;
+  console.log(`session_token in cookie: ${sessionToken}`);
   if (!sessionToken) {
     // If the cookie is not set, return an unauthorized status
     authData = {
