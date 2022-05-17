@@ -16,7 +16,7 @@ README.md にメモを書いていこう。
 
    - postgres と redis の開発用コンテナを起動する。
 
-4. `yarn run start-dev`
+4. `yarn run dev`
    - 開発用サーバ起動（ホットリロード有効）
    - `yarn start`だと build 後のスクリプト起動になるので注意。環境変数が反映されない。
 

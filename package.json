@@ -31,7 +31,7 @@
     "test": "jest --watchAll",
     "build": "rm -rf dist && tsc",
     "start": "node dist/index.js",
-    "start-dev": "env-cmd -f .env.development nodemon src/index.ts",
+    "dev": "env-cmd -f .env.development nodemon src/index.ts",
     "db-test": "env-cmd -f .env.development ts-node src/database/confirmIfConnect.ts",
     "docker-up": "cd .devcontainer && docker-compose up -d && cd ..",
     "docker-down": "cd .devcontainer && docker-compose down && cd .."
