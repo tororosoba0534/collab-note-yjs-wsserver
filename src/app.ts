@@ -4,12 +4,28 @@ import { WebSocketServer } from "ws";
 import addAuthMiddlewares from "./auth/addAuthMiddlewares";
 import setupWSConnection from "./websockets/setupWSConnection";
 import { authOnUpgrade } from "./auth/authOnUpgrade";
+import cors from "cors";
+import config from "./config";
+import addAccountMiddlewares from "./accounts/addAccountMiddlewares";
 
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ noServer: true });
 
+app.use(
+  cors({
+    origin: config.front.ORIGIN, // アクセス許可するオリジン
+    credentials: true, // レスポンスヘッダーにAccess-Control-Allow-Credentials追加
+    optionsSuccessStatus: 200, // レスポンスstatusを200に設定
+  })
+);
+
+app.set("trust proxy", 1);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 addAuthMiddlewares(app);
+addAccountMiddlewares(app);
 
 wss.on("connection", async (conn, req) => {
   await setupWSConnection(conn, req);
