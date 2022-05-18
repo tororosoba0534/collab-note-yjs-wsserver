@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { Session, usersStore, sessionsStore } from "./sessions";
 import { v4 as uuidv4 } from "uuid";
+import config from "../config";
 
 type AuthDataType = {
   username: string | null;
@@ -53,7 +54,13 @@ export const loginHandler: RequestHandler = (req, res) => {
 
   // In the response, set a cookie on the client with the name "session_cookie"
   // and the value as the UUID we generated. We also set the expiry time
-  res.cookie("session_token", sessionToken, { expires: expiresAt });
+  res.cookie("session_token", sessionToken, {
+    secure: config.NODE_ENV === "production",
+    httpOnly: true,
+    expires: expiresAt,
+    path: "/",
+  });
+
   authData = {
     username,
     authed: true,
