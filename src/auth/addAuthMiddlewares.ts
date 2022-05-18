@@ -19,11 +19,11 @@ const addAuthMiddlewares = (app: Express) => {
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
 
-  app.get("/check-auth", checkAuthHandler);
+  app.post("/check-auth", checkAuthHandler);
 
   app.post("/login", loginHandler);
 
-  app.get("/logout", logoutHandler);
+  app.post("/logout", logoutHandler);
 };
 
 export default addAuthMiddlewares;

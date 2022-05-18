@@ -9,12 +9,12 @@ export const authOnUpgrade = (
   // url path validation
   if (!validateURL(req)) return false;
 
-  // check cookie
-  const sessionToken = cookieParse(req.headers.cookie || "")?.session_token;
-  console.log(`sessionToken: ${sessionToken}`);
-  if (!sessionToken) {
-    return false;
-  }
+  // // If you can use cookies for authentication, check cookies here
+  // const sessionToken = cookieParse(req.headers.cookie || "")?.sessionID;
+  // console.log(`sessionID: ${sessionID}`);
+  // if (!sessionID) {
+  //   return false;
+  // }
   return true;
 };
 

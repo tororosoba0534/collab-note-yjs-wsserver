@@ -1,27 +1,36 @@
 import { RequestHandler } from "express";
 import { Session, usersStore, sessionsStore } from "./sessions";
 import { v4 as uuidv4 } from "uuid";
-import config from "../config";
 
-type AuthDataType = {
-  username: string | null;
+/*
+login:
+{
+  username: string,
+  password: string
+} -> {
+  authed: boolean,
+  sessionID: string
+}
+*/
+type LoginResData = {
   authed: boolean;
+  sessionID: string;
 };
-
 export const loginHandler: RequestHandler = (req, res) => {
   console.log("login detected.");
 
   // get users credentials from the JSON body
   const { username, password } = req.body;
-  let authData: AuthDataType;
+
+  let resData: LoginResData;
 
   if (!username) {
-    authData = {
-      username: null,
+    resData = {
       authed: false,
+      sessionID: "",
     };
 
-    res.send(JSON.stringify(authData));
+    res.send(JSON.stringify(resData));
     return;
   }
 
@@ -29,17 +38,17 @@ export const loginHandler: RequestHandler = (req, res) => {
   // if invalid, send an unauthorized code
   const expectedPassword = usersStore.get(username);
   if (!expectedPassword || expectedPassword !== password) {
-    authData = {
-      username: null,
+    resData = {
+      sessionID: "",
       authed: false,
     };
 
-    res.send(JSON.stringify(authData));
+    res.send(JSON.stringify(resData));
     return;
   }
 
   // generate a random UUID as the session token
-  const sessionToken = uuidv4();
+  const sessionID = uuidv4();
 
   // set the expiry time as 120s after the current time
   const now = new Date();
@@ -48,87 +57,102 @@ export const loginHandler: RequestHandler = (req, res) => {
   // create a session containing information about the user and expiry time
   const session = new Session(username, expiresAt);
 
-  console.log(`session_token generated: ${sessionToken}`);
+  console.log(`sessionID generated: ${sessionID}`);
   // add the session information to the sessions map
-  sessionsStore.set(sessionToken, session);
+  sessionsStore.set(sessionID, session);
 
-  // In the response, set a cookie on the client with the name "session_cookie"
-  // and the value as the UUID we generated. We also set the expiry time
-  res.cookie("session_token", sessionToken, {
-    secure: config.NODE_ENV === "production",
-    httpOnly: true,
-    expires: expiresAt,
-    path: "/",
-  });
-
-  authData = {
-    username,
+  resData = {
+    sessionID,
     authed: true,
   };
 
-  res.send(JSON.stringify(authData));
+  res.send(JSON.stringify(resData));
+};
+
+/*
+check-auth:
+{
+  sessionID: string
+} -> {
+  authed: boolean
+  username: string
+}
+*/
+type checkAuthResData = {
+  authed: boolean;
+  username: string;
 };
 
 export const checkAuthHandler: RequestHandler = (req, res) => {
-  let authData: AuthDataType;
+  const { sessionID } = req.body;
+  let resData: checkAuthResData;
   // if this request doesn't have any cookies, that means it isn't
   // authenticated. Return an error code.
-  if (!req.cookies) {
-    authData = {
-      username: null,
+  console.log(`sessionID in req: ${sessionID}`);
+  if (!sessionID) {
+    resData = {
+      username: "",
       authed: false,
     };
-    res.send(JSON.stringify(authData));
-    return;
-  }
-
-  // We can obtain the session token from the requests cookies, which come with every request
-  const sessionToken = req.cookies.session_token;
-  console.log(`session_token in cookie: ${sessionToken}`);
-  if (!sessionToken) {
-    // If the cookie is not set, return an unauthorized status
-    authData = {
-      username: null,
-      authed: false,
-    };
-    res.send(JSON.stringify(authData));
+    res.send(JSON.stringify(resData));
     return;
   }
 
   // We then get the session of the user from our session map
   // that we set in the signinHandler
-  const userSession = sessionsStore.get(sessionToken);
+  const userSession = sessionsStore.get(sessionID);
   if (!userSession) {
-    authData = {
-      username: null,
+    resData = {
+      username: "",
       authed: false,
     };
-    res.send(JSON.stringify(authData));
+    res.send(JSON.stringify(resData));
     return;
   }
   // if the session has expired, return an unauthorized error, and delete the
   // session from our map
   if (userSession.isExpired()) {
-    sessionsStore.delete(sessionToken);
-    authData = {
-      username: null,
+    sessionsStore.delete(sessionID);
+    resData = {
+      username: "",
       authed: false,
     };
-    res.send(JSON.stringify(authData));
+    res.send(JSON.stringify(resData));
     return;
   }
 
   // If all checks have passed, we can consider the user authenticated and
   // send a welcome message
-  authData = {
+  resData = {
     username: userSession.username,
     authed: true,
   };
-  res.send(JSON.stringify(authData));
+  res.send(JSON.stringify(resData));
+};
+
+/*
+logout: {
+  sessionID: string
+} -> {
+  logoutStatus: boolean
+}
+*/
+type LogoutResData = {
+  logoutStatus: boolean;
 };
 
 export const logoutHandler: RequestHandler = (req, res) => {
-  const sessionToken = req.cookies.session_token;
-  sessionsStore.delete(sessionToken);
-  res.sendStatus(200); // OK
+  let resData: LogoutResData;
+  const { sessionID } = req.body;
+  if (sessionsStore.has(sessionID)) {
+    resData = {
+      logoutStatus: false,
+    };
+    res.send(JSON.stringify(resData));
+  }
+  sessionsStore.delete(sessionID);
+  resData = {
+    logoutStatus: true,
+  };
+  res.send(JSON.stringify(resData));
 };
