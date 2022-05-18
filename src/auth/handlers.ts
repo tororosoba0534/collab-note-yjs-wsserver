@@ -144,7 +144,7 @@ type LogoutResData = {
 export const logoutHandler: RequestHandler = (req, res) => {
   let resData: LogoutResData;
   const { sessionID } = req.body;
-  if (sessionsStore.has(sessionID)) {
+  if (!sessionsStore.has(sessionID)) {
     resData = {
       logoutStatus: false,
     };

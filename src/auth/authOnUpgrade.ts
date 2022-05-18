@@ -1,6 +1,6 @@
 import http from "http";
 import stream from "stream";
-import { parse as cookieParse } from "cookie";
+// import { parse as parseCookies } from "cookie";
 
 export const authOnUpgrade = (
   req: http.IncomingMessage,
@@ -10,7 +10,7 @@ export const authOnUpgrade = (
   if (!validateURL(req)) return false;
 
   // // If you can use cookies for authentication, check cookies here
-  // const sessionToken = cookieParse(req.headers.cookie || "")?.sessionID;
+  // const sessionToken = parseCookies(req.headers.cookie || "")?.sessionID;
   // console.log(`sessionID: ${sessionID}`);
   // if (!sessionID) {
   //   return false;
