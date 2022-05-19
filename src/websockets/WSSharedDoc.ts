@@ -13,7 +13,7 @@ const persistUpdate = async (
   doc: WSSharedDoc,
   update: Uint8Array
 ): Promise<void> => {
-  await knex("items").insert({ docname: doc.name, update });
+  await knex("yjs_updates").insert({ user_id: doc.name, update });
 };
 
 const updateHandler = async (

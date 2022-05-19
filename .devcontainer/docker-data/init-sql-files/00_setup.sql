@@ -1,7 +1,15 @@
-CREATE TABLE IF NOT EXISTS items (
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    password TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS yjs_updates (
     id BIGSERIAL PRIMARY KEY,
-    docname TEXT NOT NULL,
+    user_id TEXT REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
     update BYTEA NOT NULL
 );
 
-CREATE INDEX items_docname_index ON items (docname);
+INSERT INTO users VALUES 
+    ('test', 'test'),
+    ('user1', 'password1'),
+    ('user2', 'password2');

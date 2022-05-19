@@ -2,18 +2,19 @@ import constants from "../websockets/constants";
 import WSSharedDoc from "../websockets/WSSharedDoc";
 import knex from "./knex";
 import * as Y from "yjs";
+import dbConstants from "./constatns";
 
 interface DBUpdate {
   id: string;
-  docname: string;
+  user_id: string;
   update: Uint8Array;
 }
 
 export const getUpdates = async (doc: WSSharedDoc): Promise<DBUpdate[]> => {
   return knex.transaction(async (trx) => {
-    const updates = await knex<DBUpdate>("items")
+    const updates = await knex<DBUpdate>("yjs_updates")
       .transacting(trx)
-      .where("docname", doc.name)
+      .where("user_id", doc.name)
       .forUpdate()
       .orderBy("id");
 
@@ -27,13 +28,13 @@ export const getUpdates = async (doc: WSSharedDoc): Promise<DBUpdate[]> => {
       });
 
       const [mergedUpdates] = await Promise.all([
-        knex<DBUpdate>("items")
+        knex<DBUpdate>(dbConstants.YJS_UPDATES)
           .transacting(trx)
-          .insert({ docname: doc.name, update: Y.encodeStateAsUpdate(dbYDoc) })
+          .insert({ user_id: doc.name, update: Y.encodeStateAsUpdate(dbYDoc) })
           .returning("*"),
-        knex("items")
+        knex("yjs_updates")
           .transacting(trx)
-          .where("docname", doc.name)
+          .where("user_id", doc.name)
           .whereIn(
             "id",
             updates.map(({ id }) => id)

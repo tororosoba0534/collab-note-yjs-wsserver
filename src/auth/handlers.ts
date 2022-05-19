@@ -1,6 +1,8 @@
 import { RequestHandler } from "express";
-import { Session, usersStore, sessionsStore } from "./sessions";
+import { Session, sessionsStore } from "./sessions";
 import { v4 as uuidv4 } from "uuid";
+import knex from "../database/knex";
+import { DBUsers } from "../database/dbTypes";
 
 /*
 login:
@@ -16,7 +18,7 @@ type LoginResData = {
   authed: boolean;
   sessionID: string;
 };
-export const loginHandler: RequestHandler = (req, res) => {
+export const loginHandler: RequestHandler = async (req, res) => {
   console.log("login detected.");
 
   // get users credentials from the JSON body
@@ -24,7 +26,12 @@ export const loginHandler: RequestHandler = (req, res) => {
 
   let resData: LoginResData;
 
-  if (!username) {
+  if (
+    !username ||
+    !password ||
+    typeof username !== "string" ||
+    typeof password !== "string"
+  ) {
     resData = {
       authed: false,
       sessionID: "",
@@ -36,7 +43,24 @@ export const loginHandler: RequestHandler = (req, res) => {
 
   // validate the password against our data
   // if invalid, send an unauthorized code
-  const expectedPassword = usersStore.get(username);
+  const stored = await knex<DBUsers>("users")
+    .where("id", username)
+    .then((stored) => {
+      console.log(`user data in postgres: ${JSON.stringify(stored)}`);
+      return stored;
+    });
+
+  if (stored.length === 0) {
+    console.log("user does NOT exist.");
+    resData = {
+      sessionID: "",
+      authed: false,
+    };
+
+    res.send(JSON.stringify(resData));
+    return;
+  }
+  const expectedPassword = stored[0].password;
   if (!expectedPassword || expectedPassword !== password) {
     resData = {
       sessionID: "",
