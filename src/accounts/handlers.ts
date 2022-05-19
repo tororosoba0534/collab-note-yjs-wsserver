@@ -1,5 +1,7 @@
 import { RequestHandler } from "express";
 import { sessionsStore, usersStore } from "../auth/sessions";
+import { DBUsers } from "../database/dbTypes";
+import knex from "../database/knex";
 
 /*
 register: {
@@ -12,7 +14,7 @@ register: {
 type registerResData = {
   registerStatus: boolean;
 };
-export const registerHandler: RequestHandler = (req, res) => {
+export const registerHandler: RequestHandler = async (req, res) => {
   const { username, password } = req.body;
   let resData: registerResData;
 
@@ -30,21 +32,26 @@ export const registerHandler: RequestHandler = (req, res) => {
     return;
   }
 
-  if (usersStore.has(username)) {
-    console.log("same name already exists");
+  await knex.transaction(async (trx) => {
+    const stored = await trx<DBUsers>("users")
+      .where("id", username)
+      .forUpdate();
+    if (stored.length !== 0) {
+      console.log("same name already exists");
+      resData = {
+        registerStatus: false,
+      };
+      res.send(JSON.stringify(resData));
+      return;
+    }
+
+    await trx<DBUsers>("users").insert({ id: username, password });
+    console.log("resister succeeded.");
     resData = {
-      registerStatus: false,
+      registerStatus: true,
     };
     res.send(JSON.stringify(resData));
-    return;
-  }
-
-  usersStore.set(username, password);
-  console.log("resister succeeded.");
-  resData = {
-    registerStatus: true,
-  };
-  res.send(JSON.stringify(resData));
+  });
 };
 
 /*
@@ -57,10 +64,22 @@ check-username: {
 type checkUsernameResData = {
   isValidName: boolean;
 };
-export const checkUsernameHandler: RequestHandler = (req, res) => {
+export const checkUsernameHandler: RequestHandler = async (req, res) => {
   const { username } = req.body;
   let resData: checkUsernameResData;
-  if (usersStore.has(username)) {
+
+  if (!username || typeof username !== "string") {
+    console.log("req type invalid.");
+    resData = {
+      isValidName: false,
+    };
+    res.send(JSON.stringify(resData));
+    return;
+  }
+
+  const stored = await knex<DBUsers>("users").where("id", username);
+
+  if (stored.length !== 0) {
     resData = {
       isValidName: false,
     };
