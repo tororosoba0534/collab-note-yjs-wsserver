@@ -86,6 +86,8 @@ type deleteAccountResData = {
   deleteAccountStatus: boolean;
 };
 export const deleteAccountHandler: RequestHandler = (req, res) => {
+  // TODO:
+  // delete doc in postgres
   const { sessionID, username } = req.body;
   let resData: deleteAccountResData;
   if (
@@ -141,6 +143,8 @@ type changeUsernameResData = {
   changeUsernameStatus: boolean;
 };
 export const changeUsernameHandler: RequestHandler = (req, res) => {
+  // TODO:
+  // change docname in postgres
   const { sessionID, newUsername } = req.body;
   let resData: changeUsernameResData;
   if (
