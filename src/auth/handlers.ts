@@ -1,8 +1,8 @@
 import { RequestHandler } from "express";
-import { Session, sessionsStore } from "./sessions";
 import { v4 as uuidv4 } from "uuid";
 import knex from "../database/knex";
 import { DBUsers } from "../database/dbTypes";
+import { sessionsRedisStore } from "../redis";
 
 /*
 login:
@@ -74,16 +74,19 @@ export const loginHandler: RequestHandler = async (req, res) => {
   // generate a random UUID as the session token
   const sessionID = uuidv4();
 
-  // set the expiry time as 120s after the current time
-  const now = new Date();
-  const expiresAt = new Date(+now + 120 * 1000);
+  sessionsRedisStore.set(sessionID, username);
+  sessionsRedisStore.expire(sessionID, 2 * 60 * 1000);
 
-  // create a session containing information about the user and expiry time
-  const session = new Session(username, expiresAt);
+  // // set the expiry time as 120s after the current time
+  // const now = new Date();
+  // const expiresAt = new Date(+now + 120 * 1000);
+
+  // // create a session containing information about the user and expiry time
+  // const session = new Session(username, expiresAt);
 
   console.log(`sessionID generated: ${sessionID}`);
-  // add the session information to the sessions map
-  sessionsStore.set(sessionID, session);
+  // // add the session information to the sessions map
+  // sessionsStore.set(sessionID, session);
 
   resData = {
     sessionID,
@@ -107,13 +110,13 @@ type checkAuthResData = {
   username: string;
 };
 
-export const checkAuthHandler: RequestHandler = (req, res) => {
+export const checkAuthHandler: RequestHandler = async (req, res) => {
   const { sessionID } = req.body;
   let resData: checkAuthResData;
   // if this request doesn't have any cookies, that means it isn't
   // authenticated. Return an error code.
   console.log(`sessionID in req: ${sessionID}`);
-  if (!sessionID) {
+  if (!sessionID || typeof sessionID !== "string") {
     resData = {
       username: "",
       authed: false,
@@ -124,8 +127,8 @@ export const checkAuthHandler: RequestHandler = (req, res) => {
 
   // We then get the session of the user from our session map
   // that we set in the signinHandler
-  const userSession = sessionsStore.get(sessionID);
-  if (!userSession) {
+  const storedUsername = await sessionsRedisStore.get(sessionID);
+  if (!storedUsername) {
     resData = {
       username: "",
       authed: false,
@@ -133,22 +136,22 @@ export const checkAuthHandler: RequestHandler = (req, res) => {
     res.send(JSON.stringify(resData));
     return;
   }
-  // if the session has expired, return an unauthorized error, and delete the
-  // session from our map
-  if (userSession.isExpired()) {
-    sessionsStore.delete(sessionID);
-    resData = {
-      username: "",
-      authed: false,
-    };
-    res.send(JSON.stringify(resData));
-    return;
-  }
+  // // if the session has expired, return an unauthorized error, and delete the
+  // // session from our map
+  // if (userSession.isExpired()) {
+  //   sessionsStore.delete(sessionID);
+  //   resData = {
+  //     username: "",
+  //     authed: false,
+  //   };
+  //   res.send(JSON.stringify(resData));
+  //   return;
+  // }
 
   // If all checks have passed, we can consider the user authenticated and
   // send a welcome message
   resData = {
-    username: userSession.username,
+    username: storedUsername,
     authed: true,
   };
   res.send(JSON.stringify(resData));
@@ -165,16 +168,24 @@ type LogoutResData = {
   logoutStatus: boolean;
 };
 
-export const logoutHandler: RequestHandler = (req, res) => {
+export const logoutHandler: RequestHandler = async (req, res) => {
   let resData: LogoutResData;
   const { sessionID } = req.body;
-  if (!sessionsStore.has(sessionID)) {
+  if (!sessionID || typeof sessionID !== "string") {
+    resData = {
+      logoutStatus: false,
+    };
+    res.send(JSON.stringify(resData));
+    return;
+  }
+  const storedUsername = await sessionsRedisStore.get(sessionID);
+  if (!storedUsername) {
     resData = {
       logoutStatus: false,
     };
     res.send(JSON.stringify(resData));
   }
-  sessionsStore.delete(sessionID);
+  sessionsRedisStore.del(sessionID);
   resData = {
     logoutStatus: true,
   };

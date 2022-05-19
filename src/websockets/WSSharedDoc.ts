@@ -7,7 +7,7 @@ import constants from "./constants";
 import { WebSocket } from "ws";
 import { send } from "./utils";
 import knex from "../database/knex";
-import { pub, sub } from "../redis/pubsub";
+import { pub, sub } from "../redis";
 
 const persistUpdate = async (
   doc: WSSharedDoc,

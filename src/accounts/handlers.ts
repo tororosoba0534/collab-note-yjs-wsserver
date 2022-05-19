@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { sessionsStore, usersStore } from "../auth/sessions";
+import { sessionsStore } from "../auth/sessions";
 import { DBUsers } from "../database/dbTypes";
 import knex from "../database/knex";
 
@@ -142,7 +142,7 @@ export const deleteAccountHandler: RequestHandler = (req, res) => {
     return;
   }
   sessionsStore.delete(sessionID);
-  usersStore.delete(username);
+  // usersStore.delete(username);
   console.log("account deleted");
   resData = {
     deleteAccountStatus: true,
@@ -188,26 +188,26 @@ export const changeUsernameHandler: RequestHandler = (req, res) => {
     res.send(JSON.stringify(resData));
     return;
   }
-  const storedUsername = storedSession.username;
-  const password = usersStore.get(storedUsername);
-  if (!password) {
-    console.log("inner mismatch occured in server.");
-    resData = {
-      changeUsernameStatus: false,
-    };
-    res.send(JSON.stringify(resData));
-    return;
-  }
-  if (usersStore.has(newUsername)) {
-    console.log("username already exists.");
-    resData = {
-      changeUsernameStatus: false,
-    };
-    res.send(JSON.stringify(resData));
-    return;
-  }
-  usersStore.set(newUsername, password);
-  usersStore.delete(storedUsername);
+  // const storedUsername = storedSession.username;
+  // const password = usersStore.get(storedUsername);
+  // if (!password) {
+  //   console.log("inner mismatch occured in server.");
+  //   resData = {
+  //     changeUsernameStatus: false,
+  //   };
+  //   res.send(JSON.stringify(resData));
+  //   return;
+  // }
+  // if (usersStore.has(newUsername)) {
+  //   console.log("username already exists.");
+  //   resData = {
+  //     changeUsernameStatus: false,
+  //   };
+  //   res.send(JSON.stringify(resData));
+  //   return;
+  // }
+  // usersStore.set(newUsername, password);
+  // usersStore.delete(storedUsername);
   console.log("changing username succeeded.");
   resData = {
     changeUsernameStatus: true,
@@ -251,8 +251,8 @@ export const changePasswordHandler: RequestHandler = (req, res) => {
     res.send(JSON.stringify(resData));
     return;
   }
-  const storedUsername = storedSession.username;
-  usersStore.set(storedUsername, newPassword);
+  // const storedUsername = storedSession.username;
+  // usersStore.set(storedUsername, newPassword);
   console.log("changing password succeeded.");
   resData = {
     changePasswordStatus: true,

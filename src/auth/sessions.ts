@@ -1,9 +1,3 @@
-export const usersStore = new Map<string, string>([
-  ["user1", "password1"],
-  ["user2", "password2"],
-  ["test", "test"],
-]);
-
 export class Session {
   expiresAt: Date;
   username: string;
