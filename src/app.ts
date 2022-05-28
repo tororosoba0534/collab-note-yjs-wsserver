@@ -31,11 +31,11 @@ wss.on("connection", async (conn, req) => {
   await setupWSConnection(conn, req);
 });
 
-server.on("upgrade", (req, socket, head) => {
+server.on("upgrade", async (req, socket, head) => {
   console.log("upgrade detected.");
   console.log(`url: ${req.url}`);
 
-  const result = authOnUpgrade(req, socket);
+  const result = await authOnUpgrade(req, socket);
   if (!result) {
     socket.write("HTTP/1.1 401 Unauthorized\r\n\r\n");
     socket.destroy();
