@@ -1,6 +1,18 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+/*
+ * For a detailed explanation regarding each configuration property, visit:
+ * https://jestjs.io/docs/configuration
+ */
+
 module.exports = {
+  clearMocks: true,
+  collectCoverage: true,
+  coverageDirectory: "coverage",
+  coverageProvider: "v8",
+
+  transform: {},
+
   preset: "ts-jest",
+  testEnvironment: "jsdom",
   extensionsToTreatAsEsm: [".ts"],
   globals: {
     "ts-jest": {
@@ -10,13 +22,4 @@ module.exports = {
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
-  testEnvironment: "node",
-  rootDir: "./src",
-  transform: {
-    "\\.jsx?$": "babel-jest",
-    "\\.tsx?$": "ts-jest",
-  },
-  transformIgnorePatterns: [
-    "/node_modules/(?!lib0|express|y-protocols).+\\.js",
-  ],
 };

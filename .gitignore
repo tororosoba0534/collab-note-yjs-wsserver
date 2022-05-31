@@ -4,3 +4,5 @@ dist
 .devcontainer/docker-data/pg
 
 .env.production
+
+coverage
