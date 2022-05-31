@@ -12,6 +12,7 @@ const config = {
   front: {
     ORIGIN: process.env.FRONT_ORIGIN as string,
   },
+  SESSION_EXPIRATION_TIME: 2 * 60 * 1000,
 };
 
 export default config;

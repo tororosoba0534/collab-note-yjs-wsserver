@@ -1,6 +1,8 @@
 import { DBUsers } from "../database/dbTypes";
 import knex from "../database/knex";
 import http from "http";
+import { Request } from "express";
+import { Sessions } from "./Sessions";
 
 export const isDocnameValid = async (docname: string): Promise<boolean> => {
   const storedUsers = await knex<DBUsers>("users").where("id", docname);

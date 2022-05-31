@@ -11,12 +11,12 @@ export const authOnUpgrade = async (
   const isURLValid = await validateURL(req);
   if (!isURLValid) return false;
 
-  // // If you can use cookies for authentication, check cookies here
-  // const sessionToken = parseCookies(req.headers.cookie || "")?.sessionID;
-  // console.log(`sessionID: ${sessionID}`);
-  // if (!sessionID) {
-  //   return false;
-  // }
+  /* // If you can use cookies for authentication, check cookies here:
+  const sessionID = await Sessions.req2Token(req)
+  const username = await Sessions.token2Username(sessionID)
+  if (!username) return false
+  */
+
   return true;
 };
 
