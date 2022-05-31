@@ -118,6 +118,6 @@ const messageListener = async (
       break;
     }
     default:
-      throw new Error("unreachable");
+      console.error("invalid message type.");
   }
 };
