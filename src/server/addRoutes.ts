@@ -10,6 +10,10 @@ import {
 import { checkUsername, login, register } from "./rootFuncs";
 
 export const addRoutes = (app: Express): void => {
+  app.get("/test", (req, res) => {
+    res.send(JSON.stringify({ hello: "Hello from server!" }));
+  });
+
   app.post("/register", async (req, res) => {
     const { username, password } = req.body;
     const result = await register(username, password);
