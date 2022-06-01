@@ -43,7 +43,7 @@ export class Sessions {
   };
 
   static delete = async (sessionID: string): Promise<boolean> => {
-    if (!sessionID) {
+    if (IsNOTvalid.sessionID(sessionID)) {
       return false;
     }
     await sessionsRedis.del(sessionID);
