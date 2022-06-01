@@ -2,10 +2,10 @@ import { Sessions } from "../auth/Sessions";
 import { DBUsers } from "../database/dbTypes";
 import knex from "../database/knex";
 import { renderError } from "../utils/errorHandlings";
-import { IsValid } from "../utils/validations";
+import { IsInvalid } from "../utils/validations";
 
 export const checkAuth = async (sessionID: string): Promise<string> => {
-  if (!IsValid.sessionID(sessionID)) {
+  if (IsInvalid.sessionID(sessionID)) {
     return "";
   }
 
@@ -19,7 +19,7 @@ export const checkAuth = async (sessionID: string): Promise<string> => {
 };
 
 export const logout = async (sessionID: string): Promise<boolean> => {
-  if (!IsValid.sessionID(sessionID)) {
+  if (IsInvalid.sessionID(sessionID)) {
     return false;
   }
   try {
@@ -36,7 +36,7 @@ export const logout = async (sessionID: string): Promise<boolean> => {
 };
 
 export const deleteAccount = async (sessionID: string): Promise<boolean> => {
-  if (!IsValid.sessionID(sessionID)) {
+  if (IsInvalid.sessionID(sessionID)) {
     return false;
   }
 
@@ -66,7 +66,7 @@ export const changeUsername = async (
   oldSessionID: string,
   newUsername: any
 ): Promise<string> => {
-  if (!IsValid.sessionID(oldSessionID) || !IsValid.username(newUsername)) {
+  if (IsInvalid.sessionID(oldSessionID) || IsInvalid.username(newUsername)) {
     return "";
   }
   try {
@@ -94,7 +94,7 @@ export const changePassword = async (
   oldSessionID: string,
   newPassword: any
 ): Promise<string> => {
-  if (!IsValid.sessionID(oldSessionID) || !IsValid.password(newPassword)) {
+  if (IsInvalid.sessionID(oldSessionID) || IsInvalid.password(newPassword)) {
     return "";
   }
   try {

@@ -9,7 +9,11 @@ const usernameRegExp = /^[0-9a-zA-Z]{5,20}/;
 // Length: 5 ~ 20
 const passwordRegExp = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])^[0-9a-zA-Z]{5,20}/;
 
-export class IsValid {
+// !!! CAUTION !!!
+// Return true when validation FAILS.
+// This behavior aims to make it easy to write so-called "early return" patterns.
+// So do NOT use "!" to write fail condition.
+export class IsInvalid {
   private static isString = (param: any): boolean => {
     if (typeof param === "string") {
       return true;
@@ -41,14 +45,14 @@ export class IsValid {
   };
 
   static username = (username: any): boolean => {
-    return this.baseValidation(username, usernameRegExp);
+    return !this.baseValidation(username, usernameRegExp);
   };
 
   static password = (password: any): boolean => {
-    return this.baseValidation(password, passwordRegExp);
+    return !this.baseValidation(password, passwordRegExp);
   };
 
   static sessionID = (sessionID: any): boolean => {
-    return this.isNonEmptyString(sessionID);
+    return !this.isNonEmptyString(sessionID);
   };
 }

@@ -2,13 +2,13 @@ import { Sessions } from "../auth/Sessions";
 import { DBUsers } from "../database/dbTypes";
 import knex from "../database/knex";
 import { renderError } from "../utils/errorHandlings";
-import { IsValid } from "../utils/validations";
+import { IsInvalid } from "../utils/validations";
 
 export const register = async (
   username: any,
   password: any
 ): Promise<boolean> => {
-  if (!IsValid.password(password) || !IsValid.username(username)) {
+  if (IsInvalid.password(password) || IsInvalid.username(username)) {
     console.error("request type invalid.");
     return false;
   }
@@ -39,7 +39,7 @@ export const register = async (
 };
 
 export const checkUsername = async (username: any): Promise<boolean> => {
-  if (!IsValid.username) {
+  if (IsInvalid.username(username)) {
     return false;
   }
 
@@ -57,7 +57,7 @@ export const checkUsername = async (username: any): Promise<boolean> => {
 };
 
 export const login = async (username: any, password: any): Promise<string> => {
-  if (!IsValid.username(username) || !IsValid.password(password)) {
+  if (IsInvalid.username(username) || IsInvalid.password(password)) {
     return "";
   }
 
