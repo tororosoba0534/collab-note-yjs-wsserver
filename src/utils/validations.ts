@@ -1,19 +1,19 @@
 // username:
 // Compose of uppercase, lowercase, or number
 // Length: 5 ~ 20
-const usernameRegExp = /^[0-9a-zA-Z]{5,20}/;
+const usernameRegExp = /^[0-9a-zA-Z]{5,20}$/;
 
 // password:
 // Compose of uppercase, lowercase, and number
 // and each of them appears more than once.
 // Length: 5 ~ 20
-const passwordRegExp = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])^[0-9a-zA-Z]{5,20}/;
+const passwordRegExp = /(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])^[0-9a-zA-Z]{5,20}$/;
 
 // !!! CAUTION !!!
 // Return true when validation FAILS.
 // This behavior aims to make it easy to write so-called "early return" patterns.
 // So do NOT use "!" to write fail condition.
-export class IsInvalid {
+export class IsNOTvalid {
   private static isString = (param: any): boolean => {
     if (typeof param === "string") {
       return true;
