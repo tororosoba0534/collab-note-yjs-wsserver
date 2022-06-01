@@ -1,5 +1,5 @@
-import knex from "./knex";
+import knexClient from "./knexClient";
 
-knex("items")
+knexClient("items")
   .select("*")
   .then((result) => console.log(result));

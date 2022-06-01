@@ -6,14 +6,14 @@ import * as encoding from "lib0/encoding";
 import constants from "./constants";
 import { WebSocket } from "ws";
 import { send } from "./utils";
-import knex from "../database/knex";
+import knexClient from "../database/knexClient";
 import { pub, sub } from "../redis";
 
 const persistUpdate = async (
   doc: WSSharedDoc,
   update: Uint8Array
 ): Promise<void> => {
-  await knex("yjs_updates").insert({ user_id: doc.name, update });
+  await knexClient("yjs_updates").insert({ user_id: doc.name, update });
 };
 
 const updateHandler = async (

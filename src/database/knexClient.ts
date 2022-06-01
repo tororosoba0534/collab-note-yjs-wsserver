@@ -1,7 +1,7 @@
 import Knex from "knex";
 import config from "../config";
 
-const knex =
+const knexClient =
   config.NODE_ENV === "production"
     ? Knex({
         client: "pg",
@@ -15,4 +15,4 @@ const knex =
         connection: config.db.CONNECTION_URI,
       });
 
-export default knex;
+export default knexClient;

@@ -1,6 +1,6 @@
 import { Sessions } from "../auth/Sessions";
 import { DBUsers } from "../database/dbTypes";
-import knex from "../database/knex";
+import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
 
@@ -16,7 +16,7 @@ export const register = async (
   let dbResult: boolean;
 
   try {
-    dbResult = await knex.transaction(async (trx) => {
+    dbResult = await knexClient.transaction(async (trx) => {
       const stored = await trx<DBUsers>("users")
         .where("id", username)
         .forUpdate();
@@ -44,7 +44,7 @@ export const checkUsername = async (username: any): Promise<boolean> => {
   }
 
   try {
-    const stored = await knex<DBUsers>("users").where("id", username);
+    const stored = await knexClient<DBUsers>("users").where("id", username);
 
     if (stored.length !== 0) {
       return false;
@@ -62,7 +62,7 @@ export const login = async (username: any, password: any): Promise<string> => {
   }
 
   try {
-    const storedUserData = await knex<DBUsers>("users")
+    const storedUserData = await knexClient<DBUsers>("users")
       .where("id", username)
       .then((stored) => {
         console.log(`user data in postgres: ${JSON.stringify(stored)}`);

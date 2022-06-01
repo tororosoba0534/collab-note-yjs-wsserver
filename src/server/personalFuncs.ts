@@ -1,6 +1,6 @@
 import { Sessions } from "../auth/Sessions";
 import { DBUsers } from "../database/dbTypes";
-import knex from "../database/knex";
+import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
 
@@ -47,7 +47,7 @@ export const deleteAccount = async (sessionID: string): Promise<boolean> => {
       return false;
     }
 
-    const deleteResult = await knex.transaction(async (trx) => {
+    const deleteResult = await knexClient.transaction(async (trx) => {
       const redisResult = await Sessions.delete(sessionID);
 
       await trx<DBUsers>("users").where("id", storedUsername).delete();
@@ -73,7 +73,7 @@ export const changeUsername = async (
     const oldUsername = await Sessions.token2Username(oldSessionID);
     if (!oldUsername) return "";
 
-    const newSessionID: string = await knex.transaction(async (trx) => {
+    const newSessionID: string = await knexClient.transaction(async (trx) => {
       const newSessionID = await Sessions.add(newUsername);
       await trx<DBUsers>("users")
         .where("id", oldUsername)
@@ -101,7 +101,7 @@ export const changePassword = async (
     const username = await Sessions.token2Username(oldSessionID);
     if (!username) return "";
 
-    const newSessionID: string = await knex.transaction(async (trx) => {
+    const newSessionID: string = await knexClient.transaction(async (trx) => {
       const newSessionID = await Sessions.add(username);
       await trx<DBUsers>("users")
         .where("id", username)
