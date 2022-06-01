@@ -1,9 +1,6 @@
 import { DBUsers } from "../database/dbTypes";
 import knex from "../database/knex";
-import http from "http";
-import { Request } from "express";
-import { Sessions } from "./Sessions";
-import { renderError } from "../utils";
+import { renderError } from "../utils/errorHandlings";
 
 export const isDocnameValid = async (docname: string): Promise<boolean> => {
   try {

@@ -1,20 +1,14 @@
-import { RequestHandler } from "express";
-import { string } from "lib0";
 import { Sessions } from "../auth/Sessions";
 import { DBUsers } from "../database/dbTypes";
 import knex from "../database/knex";
-import { renderError } from "../utils";
+import { renderError } from "../utils/errorHandlings";
+import { IsValid } from "../utils/validations";
 
 export const register = async (
   username: any,
   password: any
 ): Promise<boolean> => {
-  if (
-    !username ||
-    !password ||
-    typeof username !== "string" ||
-    typeof password !== "string"
-  ) {
+  if (!IsValid.password(password) || !IsValid.username(username)) {
     console.error("request type invalid.");
     return false;
   }
@@ -45,7 +39,7 @@ export const register = async (
 };
 
 export const checkUsername = async (username: any): Promise<boolean> => {
-  if (!username || typeof username !== "string") {
+  if (!IsValid.username) {
     return false;
   }
 
@@ -63,12 +57,7 @@ export const checkUsername = async (username: any): Promise<boolean> => {
 };
 
 export const login = async (username: any, password: any): Promise<string> => {
-  if (
-    !username ||
-    !password ||
-    typeof username !== "string" ||
-    typeof password !== "string"
-  ) {
+  if (!IsValid.username(username) || !IsValid.password(password)) {
     return "";
   }
 

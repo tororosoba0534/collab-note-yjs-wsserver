@@ -2,6 +2,7 @@ import Redis from "ioredis";
 import config from "../config";
 import { v4 as uuidv4 } from "uuid";
 import { Request } from "express";
+import { IsValid } from "../utils/validations";
 
 /*
 sessionsRedisStore
@@ -18,7 +19,7 @@ export class Sessions {
             const sessionID = parseCookies(req.headers.cookie || "")?.sessionID;
     */
     const { sessionID } = req.body;
-    if (!sessionID || typeof sessionID !== "string") return "";
+    if (!IsValid.sessionID(sessionID)) return "";
     return sessionID;
   };
 
@@ -31,7 +32,7 @@ export class Sessions {
   };
 
   static add = async (username: string): Promise<string> => {
-    if (!username || typeof username !== "string") {
+    if (!IsValid.username(username)) {
       return "";
     }
     const newSessionID = uuidv4();
