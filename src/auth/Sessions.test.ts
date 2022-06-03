@@ -2,19 +2,14 @@ import Redis from "ioredis";
 import config from "../config";
 import { v4 as uuidv4 } from "uuid";
 import { Sessions } from "./Sessions";
-import { _privateRedis4Sessions } from "../redis/session";
+import { TestRedisSession } from "../__tests__/testUtils";
 
 beforeAll(async () => {
-  const status = _privateRedis4Sessions.status;
-  if (status === "close" || status === "end") {
-    await _privateRedis4Sessions.connect();
-  }
-  await _privateRedis4Sessions.flushall();
+  await TestRedisSession.before();
 });
 
 afterAll(async () => {
-  await _privateRedis4Sessions.flushall();
-  await _privateRedis4Sessions.quit();
+  await TestRedisSession.after();
 });
 
 describe("Sessions class methods", () => {
