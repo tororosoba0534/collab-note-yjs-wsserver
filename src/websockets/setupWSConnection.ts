@@ -7,7 +7,7 @@ import WSSharedDoc from "./WSSharedDoc";
 import constants from "./constants";
 import * as syncProtocol from "y-protocols/sync";
 import * as awarenessProtocol from "y-protocols/awareness";
-import { pub } from "../redis";
+import { pub } from "../redis/pubsub";
 import { closeConn, send } from "./utils";
 import { getUpdates } from "../database/utils";
 import * as Y from "yjs";

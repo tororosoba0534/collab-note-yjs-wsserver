@@ -3,15 +3,14 @@ import config from "../config";
 import { v4 as uuidv4 } from "uuid";
 import { Request } from "express";
 import { IsNOTvalid } from "../utils/validations";
+import { _privateRedis4Sessions } from "../redis/session";
 
 /*
-sessionsRedisStore
-key: sessionID
-value: username
-Expirration time set
+Usage of Redis in session management:
+  key: sessionID
+  value: username
+  Expirration time set
 */
-const sessionsRedis = new Redis(config.redis.CONNECTION_URI);
-
 export class Sessions {
   static req2Token = (req: Request): string => {
     /* 
@@ -24,7 +23,7 @@ export class Sessions {
   };
 
   static token2Username = async (sessionID: string): Promise<string> => {
-    const username = await sessionsRedis.get(sessionID);
+    const username = await _privateRedis4Sessions.get(sessionID);
     if (!username) {
       return "";
     }
@@ -36,8 +35,11 @@ export class Sessions {
       return "";
     }
     const newSessionID = uuidv4();
-    await sessionsRedis.set(newSessionID, username);
-    await sessionsRedis.expire(newSessionID, config.SESSION_EXPIRATION_TIME);
+    await _privateRedis4Sessions.set(newSessionID, username);
+    await _privateRedis4Sessions.expire(
+      newSessionID,
+      config.SESSION_EXPIRATION_TIME
+    );
 
     return newSessionID;
   };
@@ -46,7 +48,7 @@ export class Sessions {
     if (IsNOTvalid.sessionID(sessionID)) {
       return false;
     }
-    await sessionsRedis.del(sessionID);
+    await _privateRedis4Sessions.del(sessionID);
     return true;
   };
 }
