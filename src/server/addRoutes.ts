@@ -6,65 +6,73 @@ import {
   checkAuth,
   deleteAccount,
   logout,
-} from "./personalFuncs";
-import { checkUsername, login, register } from "./rootFuncs";
+  checkUsername,
+  login,
+  createAccount,
+} from "./handlers";
 
 export const addRoutes = (app: Express): void => {
   app.get("/test", (req, res) => {
     res.send(JSON.stringify({ hello: "Hello from server!" }));
   });
 
-  app.post("/register", async (req, res) => {
+  app.post("/createAccount", async (req, res) => {
     const { username, password } = req.body;
-    const result = await register(username, password);
+    const { status } = await createAccount(username, password);
 
-    res.send(JSON.stringify({ registerStatus: result }));
+    res.sendStatus(status);
     return;
   });
 
   app.post("/check-username", async (req, res) => {
     const { username } = req.body;
-    const result = await checkUsername(username);
-    res.send(JSON.stringify({ isValidName: result }));
+    const { status } = await checkUsername(username);
+    res.sendStatus(status);
     return;
   });
 
   app.post("/login", async (req, res) => {
     const { username, password } = req.body;
-    const sessionID = await login(username, password);
-    res.send(JSON.stringify({ sessionID }));
+    const { status, sessionID } = await login(username, password);
+    res.status(status).send(JSON.stringify({ sessionID }));
     return;
   });
 
   app.post("/personal/check-auth", async (req, res) => {
     const sessionID = Sessions.req2Token(req);
-    const username = await checkAuth(sessionID);
-    res.send(JSON.stringify({ username }));
+    const { status } = await checkAuth(sessionID);
+    res.sendStatus(status);
   });
 
   app.post("/personal/logout", async (req, res) => {
     const sessionID = Sessions.req2Token(req);
-    const logoutStatus = await logout(sessionID);
-    res.send(JSON.stringify({ logoutStatus }));
+    const { status } = await logout(sessionID);
+    res.sendStatus(status);
   });
 
   app.post("/personal/delete-account", async (req, res) => {
     const sessionID = Sessions.req2Token(req);
-    const deleteAccountStatus = await deleteAccount(sessionID);
-    res.send(JSON.stringify({ deleteAccountStatus }));
+    const { status } = await deleteAccount(sessionID);
+    res.sendStatus(status);
   });
 
   app.post("/personal/change-username", async (req, res) => {
     const oldSessionID = Sessions.req2Token(req);
     const { newUsername } = req.body;
-    const newSessionID = await changeUsername(oldSessionID, newUsername);
-    res.send(JSON.stringify({ newSessionID }));
+    const { status, newSessionID } = await changeUsername(
+      oldSessionID,
+      newUsername
+    );
+    res.status(status).send(JSON.stringify({ newSessionID }));
   });
 
   app.post("/personal/change-password", async (req, res) => {
     const oldSessionID = Sessions.req2Token(req);
     const { newPassword } = req.body;
-    const newSessionID = await changePassword(oldSessionID, newPassword);
-    res.send(JSON.stringify({ newSessionID }));
+    const { staus, newSessionID } = await changePassword(
+      oldSessionID,
+      newPassword
+    );
+    res.sendStatus(staus).send(JSON.stringify({ newSessionID }));
   });
 };
