@@ -40,8 +40,8 @@ export const addRoutes = (app: Express): void => {
 
   app.post("/personal/check-auth", async (req, res) => {
     const sessionID = Sessions.req2Token(req);
-    const { status } = await checkAuth(sessionID);
-    res.sendStatus(status);
+    const { status, username } = await checkAuth(sessionID);
+    res.status(status).send(JSON.stringify({ username }));
   });
 
   app.post("/personal/logout", async (req, res) => {

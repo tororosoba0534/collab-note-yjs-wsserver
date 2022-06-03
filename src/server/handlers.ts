@@ -105,23 +105,24 @@ export const login = async (
 
 type ResultCheckAuth = {
   status: 200 | 401 | 403 | 500;
+  username: string;
 };
 export const checkAuth = async (
   sessionID: string
 ): Promise<ResultCheckAuth> => {
   if (IsNOTvalid.sessionID(sessionID)) {
-    return { status: 401 };
+    return { status: 401, username: "" };
   }
 
   try {
     const storedUsername = await Sessions.token2Username(sessionID);
     if (!storedUsername) {
-      return { status: 403 };
+      return { status: 403, username: "" };
     }
-    return { status: 200 };
+    return { status: 200, username: storedUsername };
   } catch (e) {
     renderError(e);
-    return { status: 500 };
+    return { status: 500, username: "" };
   }
 };
 
