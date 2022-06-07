@@ -26,8 +26,8 @@ export const addRoutes = (app: Express): void => {
 
   app.post("/check-username", async (req, res) => {
     const { username } = req.body;
-    const { status } = await checkUsername(username);
-    res.sendStatus(status);
+    const { status, isUnusedValidUsername } = await checkUsername(username);
+    res.status(status).send(JSON.stringify({ isUnusedValidUsername }));
     return;
   });
 
