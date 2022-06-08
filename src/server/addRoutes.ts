@@ -21,21 +21,18 @@ export const addRoutes = (app: Express): void => {
     const { status } = await createAccount(username, password);
 
     res.sendStatus(status);
-    return;
   });
 
   app.post("/check-username", async (req, res) => {
     const { username } = req.body;
-    const { status, isUnusedValidUsername } = await checkUsername(username);
-    res.status(status).send(JSON.stringify({ isUnusedValidUsername }));
-    return;
+    const { status, isUnused } = await checkUsername(username);
+    res.status(status).send(JSON.stringify({ isUnused }));
   });
 
   app.post("/login", async (req, res) => {
     const { username, password } = req.body;
     const { status, sessionID } = await login(username, password);
     res.status(status).send(JSON.stringify({ sessionID }));
-    return;
   });
 
   app.post("/personal/check-auth", async (req, res) => {

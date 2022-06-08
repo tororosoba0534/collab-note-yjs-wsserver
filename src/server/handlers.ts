@@ -43,25 +43,25 @@ export const createAccount = async (
 
 type ResultCheckUsername = {
   status: 200 | 400 | 500;
-  isUnusedValidUsername: boolean;
+  isUnused: boolean;
 };
 export const checkUsername = async (
   username: any
 ): Promise<ResultCheckUsername> => {
   if (IsNOTvalid.username(username)) {
-    return { status: 400, isUnusedValidUsername: false };
+    return { status: 400, isUnused: false };
   }
 
   try {
     const stored = await knexClient<DBUsers>("users").where("id", username);
 
     if (stored.length !== 0) {
-      return { status: 200, isUnusedValidUsername: false };
+      return { status: 200, isUnused: false };
     }
-    return { status: 200, isUnusedValidUsername: true };
+    return { status: 200, isUnused: true };
   } catch (e) {
     renderError(e);
-    return { status: 500, isUnusedValidUsername: false };
+    return { status: 500, isUnused: false };
   }
 };
 
