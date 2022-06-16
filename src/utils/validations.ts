@@ -1,7 +1,7 @@
-// username:
+// userID:
 // Compose of uppercase, lowercase, or number
 // Length: 5 ~ 20
-const usernameRegExp = /^[0-9a-zA-Z]{5,20}$/;
+const userIDRegExp = /^[0-9a-zA-Z]{5,20}$/;
 
 // password:
 // Compose of uppercase, lowercase, and number
@@ -44,8 +44,8 @@ export class IsNOTvalid {
     return true;
   };
 
-  static username = (username: any): boolean => {
-    return !this.baseValidation(username, usernameRegExp);
+  static userID = (userID: any): boolean => {
+    return !this.baseValidation(userID, userIDRegExp);
   };
 
   static password = (password: any): boolean => {

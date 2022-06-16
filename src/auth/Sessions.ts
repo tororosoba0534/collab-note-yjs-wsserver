@@ -7,7 +7,7 @@ import { _privateRedis4Sessions } from "../redis/session";
 /*
 Usage of Redis in session management:
   key: sessionID
-  value: username
+  value: userID
   Expirration time set
 */
 export class Sessions {
@@ -21,20 +21,20 @@ export class Sessions {
     return sessionID;
   };
 
-  static token2Username = async (sessionID: string): Promise<string> => {
-    const username = await _privateRedis4Sessions.get(sessionID);
-    if (!username) {
+  static token2UserID = async (sessionID: string): Promise<string> => {
+    const userID = await _privateRedis4Sessions.get(sessionID);
+    if (!userID) {
       return "";
     }
-    return username;
+    return userID;
   };
 
-  static add = async (username: string): Promise<string> => {
-    if (IsNOTvalid.username(username)) {
+  static add = async (userID: string): Promise<string> => {
+    if (IsNOTvalid.userID(userID)) {
       return "";
     }
     const newSessionID = uuidv4();
-    await _privateRedis4Sessions.set(newSessionID, username);
+    await _privateRedis4Sessions.set(newSessionID, userID);
     await _privateRedis4Sessions.expire(
       newSessionID,
       config.SESSION_EXPIRATION_TIME

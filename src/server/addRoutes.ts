@@ -2,11 +2,11 @@ import { Express } from "express";
 import { Sessions } from "../auth/Sessions";
 import {
   changePassword,
-  changeUsername,
+  changeUserID,
   checkAuth,
   deleteAccount,
   logout,
-  checkUsername,
+  checkUserID,
   login,
   createAccount,
 } from "./handlers";
@@ -16,28 +16,28 @@ export const addRoutes = (app: Express): void => {
     res.send(JSON.stringify({ hello: "Hello from server!" }));
   });
 
-  app.post("/createAccount", async (req, res) => {
+  app.post("/create-account", async (req, res) => {
     console.log("create account called");
 
-    const { username, password } = req.body;
-    const { status } = await createAccount(username, password);
+    const { userID, password } = req.body;
+    const { status } = await createAccount(userID, password);
 
     res.sendStatus(status);
   });
 
-  app.post("/check-username", async (req, res) => {
-    console.log("checkUsername called");
+  app.post("/check-userid", async (req, res) => {
+    console.log("checkUserid called");
 
-    const { username } = req.body;
-    const { status, isUnused } = await checkUsername(username);
+    const { userID } = req.body;
+    const { status, isUnused } = await checkUserID(userID);
     res.status(status).send(JSON.stringify({ isUnused }));
   });
 
   app.post("/login", async (req, res) => {
     console.log("login called");
 
-    const { username, password } = req.body;
-    const { status, sessionID } = await login(username, password);
+    const { userID, password } = req.body;
+    const { status, sessionID } = await login(userID, password);
     res.status(status).send(JSON.stringify({ sessionID }));
   });
 
@@ -45,8 +45,8 @@ export const addRoutes = (app: Express): void => {
     console.log("checkAuth called");
 
     const sessionID = Sessions.req2Token(req);
-    const { status, username } = await checkAuth(sessionID);
-    res.status(status).send(JSON.stringify({ username }));
+    const { status, userID } = await checkAuth(sessionID);
+    res.status(status).send(JSON.stringify({ userID }));
   });
 
   app.post("/personal/logout", async (req, res) => {
@@ -65,14 +65,14 @@ export const addRoutes = (app: Express): void => {
     res.sendStatus(status);
   });
 
-  app.post("/personal/change-username", async (req, res) => {
-    console.log("changeUsername called");
+  app.post("/personal/change-userid", async (req, res) => {
+    console.log("changeUserid called");
 
     const oldSessionID = Sessions.req2Token(req);
-    const { newUsername } = req.body;
-    const { status, newSessionID } = await changeUsername(
+    const { newUserID } = req.body;
+    const { status, newSessionID } = await changeUserID(
       oldSessionID,
-      newUsername
+      newUserID
     );
     res.status(status).send(JSON.stringify({ newSessionID }));
   });

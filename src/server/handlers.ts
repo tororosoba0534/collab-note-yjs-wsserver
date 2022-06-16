@@ -8,10 +8,10 @@ type ResultCreateAccount = {
   status: 200 | 400 | 500;
 };
 export const createAccount = async (
-  username: any,
+  userID: any,
   password: any
 ): Promise<ResultCreateAccount> => {
-  if (IsNOTvalid.password(password) || IsNOTvalid.username(username)) {
+  if (IsNOTvalid.password(password) || IsNOTvalid.userID(userID)) {
     console.error("request type invalid.");
     return { status: 400 };
   }
@@ -21,15 +21,15 @@ export const createAccount = async (
   try {
     dbResult = await knexClient.transaction(async (trx) => {
       const stored = await trx<DBUsers>("users")
-        .where("id", username)
+        .where("id", userID)
         .forUpdate();
       if (stored.length !== 0) {
-        console.log("same name already exists");
+        console.log("same ID already exists");
 
         return { status: 400 };
       }
 
-      await trx<DBUsers>("users").insert({ id: username, password });
+      await trx<DBUsers>("users").insert({ id: userID, password });
       console.log("resister succeeded.");
       return { status: 200 };
     });
@@ -41,19 +41,17 @@ export const createAccount = async (
   return dbResult;
 };
 
-type ResultCheckUsername = {
+type ResultCheckUserID = {
   status: 200 | 400 | 500;
   isUnused: boolean;
 };
-export const checkUsername = async (
-  username: any
-): Promise<ResultCheckUsername> => {
-  if (IsNOTvalid.username(username)) {
+export const checkUserID = async (userID: any): Promise<ResultCheckUserID> => {
+  if (IsNOTvalid.userID(userID)) {
     return { status: 400, isUnused: false };
   }
 
   try {
-    const stored = await knexClient<DBUsers>("users").where("id", username);
+    const stored = await knexClient<DBUsers>("users").where("id", userID);
 
     if (stored.length !== 0) {
       return { status: 200, isUnused: false };
@@ -70,16 +68,16 @@ type ResultLogin = {
   sessionID: string;
 };
 export const login = async (
-  username: any,
+  userID: any,
   password: any
 ): Promise<ResultLogin> => {
-  if (IsNOTvalid.username(username) || IsNOTvalid.password(password)) {
+  if (IsNOTvalid.userID(userID) || IsNOTvalid.password(password)) {
     return { status: 400, sessionID: "" };
   }
 
   try {
     const storedUserData = await knexClient<DBUsers>("users")
-      .where("id", username)
+      .where("id", userID)
       .then((stored) => {
         console.log(`user data in postgres: ${JSON.stringify(stored)}`);
         return stored;
@@ -94,7 +92,7 @@ export const login = async (
       return { status: 401, sessionID: "" };
     }
 
-    const sessionID = await Sessions.add(username);
+    const sessionID = await Sessions.add(userID);
 
     console.log(`sessionID generated: ${sessionID}`);
     return { status: 200, sessionID };
@@ -106,24 +104,24 @@ export const login = async (
 
 type ResultCheckAuth = {
   status: 200 | 401 | 500;
-  username: string;
+  userID: string;
 };
 export const checkAuth = async (
   sessionID: string
 ): Promise<ResultCheckAuth> => {
   if (IsNOTvalid.sessionID(sessionID)) {
-    return { status: 401, username: "" };
+    return { status: 401, userID: "" };
   }
 
   try {
-    const storedUsername = await Sessions.token2Username(sessionID);
-    if (!storedUsername) {
-      return { status: 401, username: "" };
+    const storedUserID = await Sessions.token2UserID(sessionID);
+    if (!storedUserID) {
+      return { status: 401, userID: "" };
     }
-    return { status: 200, username: storedUsername };
+    return { status: 200, userID: storedUserID };
   } catch (e) {
     renderError(e);
-    return { status: 500, username: "" };
+    return { status: 500, userID: "" };
   }
 };
 
@@ -135,8 +133,8 @@ export const logout = async (sessionID: string): Promise<ResultLogout> => {
     return { status: 401 };
   }
   try {
-    const storedUsername = await Sessions.token2Username(sessionID);
-    if (!storedUsername) {
+    const storedUserID = await Sessions.token2UserID(sessionID);
+    if (!storedUserID) {
       return { status: 401 };
     }
 
@@ -161,9 +159,9 @@ export const deleteAccount = async (
   }
 
   try {
-    const storedUsername = await Sessions.token2Username(sessionID);
+    const storedUserID = await Sessions.token2UserID(sessionID);
 
-    if (!storedUsername) {
+    if (!storedUserID) {
       return { status: 401 };
     }
 
@@ -175,7 +173,7 @@ export const deleteAccount = async (
           return { status: 500 };
         }
 
-        await trx<DBUsers>("users").where("id", storedUsername).delete();
+        await trx<DBUsers>("users").where("id", storedUserID).delete();
 
         return { status: 200 };
       }
@@ -188,31 +186,31 @@ export const deleteAccount = async (
   }
 };
 
-type ResultChangeUsername = {
+type ResultChangeUserID = {
   status: 200 | 400 | 401 | 500;
   newSessionID: string;
 };
-export const changeUsername = async (
+export const changeUserID = async (
   oldSessionID: string,
-  newUsername: any
-): Promise<ResultChangeUsername> => {
+  newUserID: any
+): Promise<ResultChangeUserID> => {
   if (IsNOTvalid.sessionID(oldSessionID)) {
     return { status: 401, newSessionID: "" };
   }
 
-  if (IsNOTvalid.username(newUsername)) {
+  if (IsNOTvalid.userID(newUserID)) {
     return { status: 400, newSessionID: "" };
   }
 
   try {
-    const oldUsername = await Sessions.token2Username(oldSessionID);
-    if (!oldUsername) return { status: 401, newSessionID: "" };
+    const oldUserID = await Sessions.token2UserID(oldSessionID);
+    if (!oldUserID) return { status: 401, newSessionID: "" };
 
     const newSessionID: string = await knexClient.transaction(async (trx) => {
-      const newSessionID = await Sessions.add(newUsername);
+      const newSessionID = await Sessions.add(newUserID);
       await trx<DBUsers>("users")
-        .where("id", oldUsername)
-        .update({ id: newUsername });
+        .where("id", oldUserID)
+        .update({ id: newUserID });
 
       await Sessions.delete(oldSessionID);
       return newSessionID;
@@ -242,13 +240,13 @@ export const changePassword = async (
   }
 
   try {
-    const username = await Sessions.token2Username(oldSessionID);
-    if (!username) return { staus: 401, newSessionID: "" };
+    const userID = await Sessions.token2UserID(oldSessionID);
+    if (!userID) return { staus: 401, newSessionID: "" };
 
     const newSessionID: string = await knexClient.transaction(async (trx) => {
-      const newSessionID = await Sessions.add(username);
+      const newSessionID = await Sessions.add(userID);
       await trx<DBUsers>("users")
-        .where("id", username)
+        .where("id", userID)
         .update({ password: newPassword });
       await Sessions.delete(oldSessionID);
 

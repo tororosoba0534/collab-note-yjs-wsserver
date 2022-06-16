@@ -1,6 +1,6 @@
 import http from "http";
 import stream from "stream";
-import { isDocnameValid } from "./utils";
+import { isDocIDValid } from "./utils";
 // import { parse as parseCookies } from "cookie";
 
 export const authOnUpgrade = async (
@@ -13,8 +13,8 @@ export const authOnUpgrade = async (
 
   /* // If you can use cookies for authentication, check cookies here:
   const sessionID = await Sessions.req2Token(req)
-  const username = await Sessions.token2Username(sessionID)
-  if (!username) return false
+  const userID = await Sessions.token2UserID(sessionID)
+  if (!userID) return false
   */
 
   return true;
@@ -28,9 +28,9 @@ const validateURL = async (req: http.IncomingMessage): Promise<boolean> => {
   const result = url.split("/");
   if (result[0] !== "editor") return false;
 
-  const username = req.url?.slice(1).split("?")[0].split("/")[1] as string;
-  const isUsernameValid = await isDocnameValid(username);
-  if (!isUsernameValid) {
+  const userID = req.url?.slice(1).split("?")[0].split("/")[1] as string;
+  const isUserIDValid = await isDocIDValid(userID);
+  if (!isUserIDValid) {
     return false;
   }
 
