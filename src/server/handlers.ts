@@ -5,7 +5,7 @@ import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
 
 type ResultCreateAccount = {
-  status: 200 | 400 | 500;
+  status: 200 | 400 | 403 | 500;
 };
 export const createAccount = async (
   userID: any,
@@ -26,7 +26,7 @@ export const createAccount = async (
       if (stored.length !== 0) {
         console.log("same ID already exists");
 
-        return { status: 400 };
+        return { status: 403 };
       }
 
       await trx<DBUsers>("users").insert({ id: userID, password });
@@ -42,24 +42,23 @@ export const createAccount = async (
 };
 
 type ResultCheckUserID = {
-  status: 200 | 400 | 500;
-  isUnused: boolean;
+  status: 200 | 400 | 403 | 500;
 };
 export const checkUserID = async (userID: any): Promise<ResultCheckUserID> => {
   if (IsNOTvalid.userID(userID)) {
-    return { status: 400, isUnused: false };
+    return { status: 400 };
   }
 
   try {
     const stored = await knexClient<DBUsers>("users").where("id", userID);
 
     if (stored.length !== 0) {
-      return { status: 200, isUnused: false };
+      return { status: 403 };
     }
-    return { status: 200, isUnused: true };
+    return { status: 200 };
   } catch (e) {
     renderError(e);
-    return { status: 500, isUnused: false };
+    return { status: 500 };
   }
 };
 

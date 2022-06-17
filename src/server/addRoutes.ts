@@ -29,8 +29,8 @@ export const addRoutes = (app: Express): void => {
     console.log("checkUserid called");
 
     const { userID } = req.body;
-    const { status, isUnused } = await checkUserID(userID);
-    res.status(status).send(JSON.stringify({ isUnused }));
+    const { status } = await checkUserID(userID);
+    res.sendStatus(status);
   });
 
   app.post("/login", async (req, res) => {
