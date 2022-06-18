@@ -3,8 +3,8 @@ import config from "../config";
 // import { v4 as uuidv4 } from "uuid";
 // import { renderError } from "../utils/errorHandlings";
 
-export const pub = new Redis(config.redis.CONNECTION_URI);
-export const sub = new Redis(config.redis.CONNECTION_URI);
+export const yjsPub = new Redis(config.redis.CONNECTION_URI);
+export const yjsSub = new Redis(config.redis.CONNECTION_URI);
 
 // class RedisForPubSub extends Redis {
 //   constructor(parameters: any) {

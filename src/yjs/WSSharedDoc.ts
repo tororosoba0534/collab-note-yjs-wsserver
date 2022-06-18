@@ -3,18 +3,11 @@ import * as mutex from "lib0/mutex";
 import * as awarenessProtocol from "y-protocols/awareness";
 import * as syncProtocol from "y-protocols/sync";
 import * as encoding from "lib0/encoding";
-import constants from "./constants";
+import { yjsConsts } from "./yjsConsts";
 import { WebSocket } from "ws";
-import { send } from "./utils";
-import knexClient from "../database/knexClient";
-import { pub, sub } from "../redis/pubsub";
-
-const persistUpdate = async (
-  doc: WSSharedDoc,
-  update: Uint8Array
-): Promise<void> => {
-  await knexClient("yjs_updates").insert({ user_id: doc.name, update });
-};
+import { YjsWS } from "./YjsWS";
+import { yjsPub, yjsSub } from "../redis/pubsub";
+import { YjsDB } from "./YjsDB";
 
 const updateHandler = async (
   update: Uint8Array,
@@ -26,18 +19,18 @@ const updateHandler = async (
 
   if (origin instanceof WebSocket && doc.conns.has(origin)) {
     // @ts-ignore
-    pub.publishBuffer(doc.name, Buffer.from(update)); // do not await
+    yjsPub.publishBuffer(doc.name, Buffer.from(update)); // do not await
     shouldPersist = true;
   }
 
   const encoder = encoding.createEncoder();
-  encoding.writeVarUint(encoder, constants.MESSAGE_SYNC);
+  encoding.writeVarUint(encoder, yjsConsts.MESSAGE_SYNC);
   syncProtocol.writeUpdate(encoder, update);
   const message = encoding.toUint8Array(encoder);
-  doc.conns.forEach((_, conn) => send(doc, conn, message));
+  doc.conns.forEach((_, conn) => YjsWS.send(doc, conn, message));
 
   if (shouldPersist) {
-    await persistUpdate(doc, update);
+    await YjsDB.persistUpdate(doc, update);
   }
 };
 
@@ -77,7 +70,7 @@ class WSSharedDoc extends Y.Doc {
       }
 
       const encoder = encoding.createEncoder();
-      encoding.writeVarUint(encoder, constants.MESSAGE_AWARENESS);
+      encoding.writeVarUint(encoder, yjsConsts.MESSAGE_AWARENESS);
       encoding.writeVarUint8Array(
         encoder,
         awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients)
@@ -85,25 +78,29 @@ class WSSharedDoc extends Y.Doc {
       const buff = encoding.toUint8Array(encoder);
 
       this.conns.forEach((_, c) => {
-        send(this, c, buff);
+        YjsWS.send(this, c, buff);
       });
     };
 
     this.awareness.on("update", awarenessChangeHandler);
     this.on("update", updateHandler);
 
-    sub.subscribe(this.name, this.awarenessChannel).then(() => {
-      sub.on("messageBuffer", (channel, update) => {
+    yjsSub.subscribe(this.name, this.awarenessChannel).then(() => {
+      yjsSub.on("messageBuffer", (channel, update) => {
         const channelId = channel.toString();
 
         // update is a Buffer, Buffer is a subclass of Uint8Array, update can be applied
         // as an update directly
 
         if (channelId === this.name) {
-          Y.applyUpdate(this, update, sub);
+          Y.applyUpdate(this, update, yjsSub);
         } else if (channelId === this.awarenessChannel) {
           console.log("here");
-          awarenessProtocol.applyAwarenessUpdate(this.awareness, update, sub);
+          awarenessProtocol.applyAwarenessUpdate(
+            this.awareness,
+            update,
+            yjsSub
+          );
         }
       });
     });
@@ -111,7 +108,7 @@ class WSSharedDoc extends Y.Doc {
 
   destroy() {
     super.destroy();
-    sub.unsubscribe(this.name);
+    yjsSub.unsubscribe(this.name);
   }
 }
 

@@ -3,7 +3,7 @@ import cors from "cors";
 import config from "../config";
 import { addRoutes } from "./addRoutes";
 import http from "http";
-import { addWSEntrypoint } from "../websockets";
+import { addWSEntrypoint } from "../yjs";
 
 const app = express();
 

@@ -1,4 +1,4 @@
-const constants = {
+export const yjsConsts = {
   WS_READY_STATE_CONNECTING: 0,
   WS_READY_STATE_OPEN: 1,
 
@@ -9,5 +9,3 @@ const constants = {
 
   UPDATES_LIMIT: 50,
 };
-
-export default constants;
