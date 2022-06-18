@@ -1,13 +1,11 @@
 import * as Y from "yjs";
 import * as mutex from "lib0/mutex";
 import * as awarenessProtocol from "y-protocols/awareness";
-import * as syncProtocol from "y-protocols/sync";
-import * as encoding from "lib0/encoding";
-import { yjsConsts } from "./yjsConsts";
 import { WebSocket } from "ws";
 import { YjsWS } from "./YjsWS";
 import { yjsPub, yjsSub } from "../redis/pubsub";
 import { YjsDB } from "./YjsDB";
+import { Binary } from "./Binary";
 
 const updateHandler = async (
   update: Uint8Array,
@@ -23,11 +21,8 @@ const updateHandler = async (
     shouldPersist = true;
   }
 
-  const encoder = encoding.createEncoder();
-  encoding.writeVarUint(encoder, yjsConsts.MESSAGE_SYNC);
-  syncProtocol.writeUpdate(encoder, update);
-  const message = encoding.toUint8Array(encoder);
-  doc.conns.forEach((_, conn) => YjsWS.send(doc, conn, message));
+  const syncMsg = Binary.syncUpdateMsg(update);
+  doc.conns.forEach((_, conn) => YjsWS.send(doc, conn, syncMsg));
 
   if (shouldPersist) {
     await YjsDB.persistUpdate(doc, update);
@@ -69,16 +64,10 @@ class WSSharedDoc extends Y.Doc {
         });
       }
 
-      const encoder = encoding.createEncoder();
-      encoding.writeVarUint(encoder, yjsConsts.MESSAGE_AWARENESS);
-      encoding.writeVarUint8Array(
-        encoder,
-        awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients)
-      );
-      const buff = encoding.toUint8Array(encoder);
+      const awarenessMsg = Binary.awarenessMsg(this.awareness, changedClients);
 
       this.conns.forEach((_, c) => {
-        YjsWS.send(this, c, buff);
+        YjsWS.send(this, c, awarenessMsg);
       });
     };
 
