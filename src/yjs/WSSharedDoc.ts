@@ -12,10 +12,12 @@ const updateHandler = async (
   origin: any,
   doc: WSSharedDoc
 ): Promise<void> => {
-  console.log("Y.Doc update detected!");
+  console.log("Y.Doc updateHandler called!");
   let shouldPersist = false;
 
   if (origin instanceof WebSocket && doc.conns.has(origin)) {
+    // console.log("pub of sync called.");
+
     // @ts-ignore
     yjsPub.publishBuffer(doc.name, Buffer.from(update)); // do not await
     shouldPersist = true;
@@ -25,6 +27,7 @@ const updateHandler = async (
   doc.conns.forEach((_, conn) => YjsWS.send(doc, conn, syncMsg));
 
   if (shouldPersist) {
+    // console.log("PERSIST");
     await YjsDB.persistUpdate(doc, update);
   }
 };
@@ -53,6 +56,7 @@ class WSSharedDoc extends Y.Doc {
       }: { added: number[]; updated: number[]; removed: number[] },
       origin: any
     ) => {
+      // console.log("awareness update handler runnning!");
       const changedClients = added.concat(updated, removed);
       const connControlledIds = this.conns.get(origin);
       if (connControlledIds) {
@@ -82,9 +86,11 @@ class WSSharedDoc extends Y.Doc {
         // as an update directly
 
         if (channelId === this.name) {
+          console.log("sub of sync");
+
           Y.applyUpdate(this, update, yjsSub);
         } else if (channelId === this.awarenessChannel) {
-          console.log("here");
+          // console.log("here: awareness via pub-sub");
           awarenessProtocol.applyAwarenessUpdate(
             this.awareness,
             update,

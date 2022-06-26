@@ -16,7 +16,7 @@ const setupWSConnection = async (
   doc.conns.set(conn, new Set());
 
   conn.on("message", (message: WSData) => {
-    console.log("Message came from ", req.url);
+    // console.log("Message came from ", req.url);
     Binary.handleIncommingBinaryMsg(
       conn,
       doc,
