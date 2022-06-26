@@ -137,7 +137,7 @@ export const logout = async (sessionID: string): Promise<ResultLogout> => {
       return { status: 401 };
     }
 
-    const result = await Sessions.delete(sessionID);
+    const result = await Sessions.deleteBySessionID(sessionID);
     if (!result) {
       return { status: 500 };
     }
