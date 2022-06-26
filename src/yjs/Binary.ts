@@ -42,6 +42,17 @@ export class Binary {
     return awarenessMsg;
   };
 
+  static notificationMsg = (
+    type: "deleteAccount" | "changeUserID" | "changePassword"
+  ): Uint8Array => {
+    const messageType =
+      type === "deleteAccount" ? 10 : type === "changeUserID" ? 11 : 12;
+
+    const encoder = encoding.createEncoder();
+    encoding.writeVarUint(encoder, messageType);
+    return encoding.toUint8Array(encoder);
+  };
+
   static handleIncommingBinaryMsg = async (
     conn: WebSocket,
     // req: http.IncomingMessage,

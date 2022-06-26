@@ -3,6 +3,8 @@ import { DBUsers } from "../database/dbTypes";
 import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
+import { YDocsStore } from "../yjs/YDocsStore";
+import { YjsWS } from "../yjs/YjsWS";
 
 type ResultCreateAccount = {
   status: 200 | 400 | 403 | 500;
@@ -164,21 +166,19 @@ export const deleteAccount = async (
       return { status: 401 };
     }
 
-    const deleteResult: ResultDeleteAccount = await knexClient.transaction(
-      async (trx) => {
-        const redisResult = await Sessions.delete(sessionID);
+    const resultDA = await Sessions.deleteByUserID(storedUserID);
+    if (!resultDA) return { status: 500 };
 
-        if (!redisResult) {
-          return { status: 500 };
-        }
-
-        await trx<DBUsers>("users").where("id", storedUserID).delete();
-
-        return { status: 200 };
-      }
+    const resultBroadcast = YjsWS.broadcastNotification(
+      storedUserID,
+      "deleteAccount"
     );
+    if (!resultBroadcast) return { status: 500 };
 
-    return deleteResult;
+    const resultCloseConn = YjsWS.closeAll(storedUserID);
+    if (!resultCloseConn) return { status: 500 };
+
+    return { status: 200 };
   } catch (e) {
     renderError(e);
     return { status: 500 };
@@ -187,73 +187,79 @@ export const deleteAccount = async (
 
 type ResultChangeUserID = {
   status: 200 | 400 | 401 | 500;
-  newSessionID: string;
 };
 export const changeUserID = async (
-  oldSessionID: string,
+  sessionID: string,
   newUserID: any
 ): Promise<ResultChangeUserID> => {
-  if (IsNOTvalid.sessionID(oldSessionID)) {
-    return { status: 401, newSessionID: "" };
+  if (IsNOTvalid.sessionID(sessionID)) {
+    return { status: 401 };
   }
 
   if (IsNOTvalid.userID(newUserID)) {
-    return { status: 400, newSessionID: "" };
+    return { status: 400 };
   }
 
   try {
-    const oldUserID = await Sessions.token2UserID(oldSessionID);
-    if (!oldUserID) return { status: 401, newSessionID: "" };
+    const oldUserID = await Sessions.token2UserID(sessionID);
+    if (!oldUserID) return { status: 401 };
 
-    const newSessionID: string = await knexClient.transaction(async (trx) => {
-      const newSessionID = await Sessions.add(newUserID);
-      await trx<DBUsers>("users")
-        .where("id", oldUserID)
-        .update({ id: newUserID });
+    const resultCU = await Sessions.updateUserID(oldUserID, newUserID);
+    if (!resultCU) return { status: 500 };
 
-      await Sessions.delete(oldSessionID);
-      return newSessionID;
-    });
+    const resultBroadcast = YjsWS.broadcastNotification(
+      oldUserID,
+      "changeUserID"
+    );
+    if (!resultBroadcast) return { status: 500 };
 
-    return { status: 200, newSessionID };
+    const resultUpdateDocname = YDocsStore.updateDocname(oldUserID, newUserID);
+    if (!resultUpdateDocname) return { status: 500 };
+
+    return { status: 200 };
   } catch (e) {
     renderError(e);
-    return { status: 500, newSessionID: "" };
+    return { status: 500 };
   }
 };
 
 type ResultChangePassword = {
   staus: 200 | 400 | 401 | 500;
-  newSessionID: string;
 };
 export const changePassword = async (
-  oldSessionID: string,
+  sessionID: string,
   newPassword: any
 ): Promise<ResultChangePassword> => {
-  if (IsNOTvalid.sessionID(oldSessionID)) {
-    return { staus: 401, newSessionID: "" };
+  if (IsNOTvalid.sessionID(sessionID)) {
+    return { staus: 401 };
   }
 
   if (IsNOTvalid.password(newPassword)) {
-    return { staus: 400, newSessionID: "" };
+    return { staus: 400 };
   }
 
   try {
-    const userID = await Sessions.token2UserID(oldSessionID);
-    if (!userID) return { staus: 401, newSessionID: "" };
+    const userID = await Sessions.token2UserID(sessionID);
+    if (!userID) return { staus: 401 };
 
-    const newSessionID: string = await knexClient.transaction(async (trx) => {
-      const newSessionID = await Sessions.add(userID);
+    const result: boolean = await knexClient.transaction(async (trx) => {
       await trx<DBUsers>("users")
         .where("id", userID)
         .update({ password: newPassword });
-      await Sessions.delete(oldSessionID);
 
-      return newSessionID;
+      const resultBroadcast = YjsWS.broadcastNotification(
+        userID,
+        "changePassword"
+      );
+      if (!resultBroadcast) return false;
+
+      return true;
     });
 
-    return { staus: 200, newSessionID };
+    if (!result) return { staus: 500 };
+
+    return { staus: 200 };
   } catch (e) {
-    return { staus: 500, newSessionID: "" };
+    return { staus: 500 };
   }
 };

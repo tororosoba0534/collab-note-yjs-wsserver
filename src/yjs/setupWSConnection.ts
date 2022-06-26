@@ -12,7 +12,9 @@ const setupWSConnection = async (
 ) => {
   conn.binaryType = "arraybuffer";
   const docname = req.url?.slice(1).split("?")[0].split("/")[1] as string;
-  const doc = await YDocsStore.get(docname);
+
+  const doc = await YDocsStore.getOrCreate(docname);
+
   doc.conns.set(conn, new Set());
 
   conn.on("message", (message: WSData) => {

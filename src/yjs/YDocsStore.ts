@@ -2,15 +2,26 @@ import WSSharedDoc from "./WSSharedDoc";
 import * as Y from "yjs";
 import { YjsDB } from "./YjsDB";
 import { error2String } from "../utils/errorHandlings";
+import { IsNOTvalid } from "../utils/validations";
 
 const _innerDocs = new Map<string, WSSharedDoc>();
 
 export class YDocsStore {
-  static get = async (docname: string, gc = true): Promise<WSSharedDoc> => {
-    const existing = _innerDocs.get(docname);
-    if (existing) {
-      return existing;
-    }
+  static get = (docname: string): WSSharedDoc | undefined => {
+    return _innerDocs.get(docname);
+  };
+
+  static has = (docname: string): boolean => {
+    return _innerDocs.has(docname);
+  };
+
+  static getOrCreate = async (
+    docname: string,
+    gc = true
+  ): Promise<WSSharedDoc> => {
+    const existing = this.get(docname);
+
+    if (existing) return existing;
 
     const newDoc = new WSSharedDoc(docname);
     newDoc.gc = gc;
@@ -22,6 +33,21 @@ export class YDocsStore {
     if (err) throw err;
 
     return newDoc;
+  };
+
+  static updateDocname = (oldName: string, newName: string): boolean => {
+    if (IsNOTvalid.userID(oldName) || IsNOTvalid.userID(newName)) return false;
+
+    if (this.has(newName)) return false;
+
+    const doc = this.get(oldName);
+    if (!doc) return false;
+
+    doc.name = newName;
+    _innerDocs.delete(oldName);
+    _innerDocs.set(newName, doc);
+
+    return true;
   };
 
   static delete = (docname: string): boolean => {

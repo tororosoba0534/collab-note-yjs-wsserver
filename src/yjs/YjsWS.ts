@@ -3,6 +3,7 @@ import { WebSocket } from "ws";
 import { yjsConsts } from "./yjsConsts";
 import * as awarenessProtocol from "y-protocols/awareness";
 import { YDocsStore } from "./YDocsStore";
+import { Binary } from "./Binary";
 
 export class YjsWS {
   static closeConn = (doc: WSSharedDoc, conn: WebSocket): void => {
@@ -41,5 +42,33 @@ export class YjsWS {
     } catch (e) {
       this.closeConn(doc, conn);
     }
+  };
+
+  static closeAll = (docname: string) => {
+    const doc = YDocsStore.get(docname);
+    if (!doc) return false;
+
+    const conns = doc.conns.keys();
+    for (const conn of conns) {
+      this.closeConn(doc, conn);
+    }
+
+    return true;
+  };
+
+  static broadcastNotification = (
+    docname: string,
+    type: "deleteAccount" | "changeUserID" | "changePassword"
+  ): boolean => {
+    const doc = YDocsStore.get(docname);
+    if (!doc) return false;
+
+    const conns = doc.conns.keys();
+    const message = Binary.notificationMsg(type);
+    for (const conn of conns) {
+      this.send(doc, conn, message);
+    }
+
+    return true;
   };
 }

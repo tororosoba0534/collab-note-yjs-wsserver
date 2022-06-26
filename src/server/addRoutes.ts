@@ -70,11 +70,8 @@ export const addRoutes = (app: Express): void => {
 
     const oldSessionID = Sessions.req2Token(req);
     const { newUserID } = req.body;
-    const { status, newSessionID } = await changeUserID(
-      oldSessionID,
-      newUserID
-    );
-    res.status(status).send(JSON.stringify({ newSessionID }));
+    const { status } = await changeUserID(oldSessionID, newUserID);
+    res.sendStatus(status);
   });
 
   app.post("/personal/change-password", async (req, res) => {
@@ -82,10 +79,7 @@ export const addRoutes = (app: Express): void => {
 
     const oldSessionID = Sessions.req2Token(req);
     const { newPassword } = req.body;
-    const { staus, newSessionID } = await changePassword(
-      oldSessionID,
-      newPassword
-    );
-    res.sendStatus(staus).send(JSON.stringify({ newSessionID }));
+    const { staus } = await changePassword(oldSessionID, newPassword);
+    res.sendStatus(staus);
   });
 };
