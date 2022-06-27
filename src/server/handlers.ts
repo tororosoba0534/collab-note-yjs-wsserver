@@ -3,7 +3,6 @@ import { DBUsers } from "../database/dbTypes";
 import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
-import { YDocsStore } from "../yjs/YDocsStore";
 import { YjsWS } from "../yjs/YjsWS";
 
 type ResultCreateAccount = {
@@ -213,8 +212,11 @@ export const changeUserID = async (
     );
     if (!resultBroadcast) return { status: 500 };
 
-    const resultUpdateDocname = YDocsStore.updateDocname(oldUserID, newUserID);
-    if (!resultUpdateDocname) return { status: 500 };
+    const resultCloseConn = YjsWS.closeAll(oldUserID);
+    if (!resultCloseConn) return { status: 500 };
+
+    // const resultUpdateDocname = YDocsStore.updateDocname(oldUserID, newUserID);
+    // if (!resultUpdateDocname) return { status: 500 };
 
     return { status: 200 };
   } catch (e) {
