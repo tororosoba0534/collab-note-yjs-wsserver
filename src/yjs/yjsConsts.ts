@@ -4,6 +4,7 @@ export const yjsConsts = {
 
   MESSAGE_SYNC: 0,
   MESSAGE_AWARENESS: 1,
+  MESSAGE_TEST: 9,
 
   PING_TIMEOUT: 30000,
 

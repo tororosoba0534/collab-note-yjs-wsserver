@@ -58,7 +58,7 @@ export class YjsWS {
 
   static broadcastNotification = (
     docname: string,
-    type: "deleteAccount" | "changeUserID" | "changePassword"
+    type: "deleteAccount" | "changeUserID" | "changePassword" | "test"
   ): boolean => {
     const doc = YDocsStore.get(docname);
     if (!doc) return false;

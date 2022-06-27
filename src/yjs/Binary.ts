@@ -43,10 +43,16 @@ export class Binary {
   };
 
   static notificationMsg = (
-    type: "deleteAccount" | "changeUserID" | "changePassword"
+    type: "deleteAccount" | "changeUserID" | "changePassword" | "test"
   ): Uint8Array => {
     const messageType =
-      type === "deleteAccount" ? 10 : type === "changeUserID" ? 11 : 12;
+      type === "deleteAccount"
+        ? 10
+        : type === "changeUserID"
+        ? 11
+        : type === "changePassword"
+        ? 12
+        : 9;
 
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, messageType);
@@ -80,6 +86,10 @@ export class Binary {
         // @ts-ignore
         yjsPub.publishBuffer(doc.awarenessChannel, Buffer.from(update));
         awarenessProtocol.applyAwarenessUpdate(doc.awareness, update, conn);
+        break;
+      }
+      case yjsConsts.MESSAGE_TEST: {
+        YjsWS.broadcastNotification(doc.name, "test");
         break;
       }
       default:
