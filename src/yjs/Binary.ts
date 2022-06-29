@@ -42,18 +42,7 @@ export class Binary {
     return awarenessMsg;
   };
 
-  static notificationMsg = (
-    type: "deleteAccount" | "changeUserID" | "changePassword" | "test"
-  ): Uint8Array => {
-    const messageType =
-      type === "deleteAccount"
-        ? 10
-        : type === "changeUserID"
-        ? 11
-        : type === "changePassword"
-        ? 12
-        : 9;
-
+  static notificationMsg = (messageType: 10 | 11 | 12 | 20): Uint8Array => {
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, messageType);
     return encoding.toUint8Array(encoder);
@@ -89,7 +78,11 @@ export class Binary {
         break;
       }
       case yjsConsts.MESSAGE_TEST: {
-        YjsWS.broadcastNotification(doc.name, "test");
+        YjsWS.broadcastNotification(doc.name, 20);
+        break;
+      }
+      case yjsConsts.MESSAGE_TEST_CLOSE: {
+        YjsWS.closeConn(doc, conn);
         break;
       }
       default:

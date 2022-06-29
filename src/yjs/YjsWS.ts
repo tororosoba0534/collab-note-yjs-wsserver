@@ -58,13 +58,14 @@ export class YjsWS {
 
   static broadcastNotification = (
     docname: string,
-    type: "deleteAccount" | "changeUserID" | "changePassword" | "test"
+    messageType: 10 | 11 | 12 | 20
   ): boolean => {
     const doc = YDocsStore.get(docname);
     if (!doc) return false;
 
     const conns = doc.conns.keys();
-    const message = Binary.notificationMsg(type);
+    const message = Binary.notificationMsg(messageType);
+    if (!message) return false;
     for (const conn of conns) {
       this.send(doc, conn, message);
     }

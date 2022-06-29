@@ -168,10 +168,7 @@ export const deleteAccount = async (
     const resultDA = await Sessions.deleteByUserID(storedUserID);
     if (!resultDA) return { status: 500 };
 
-    const resultBroadcast = YjsWS.broadcastNotification(
-      storedUserID,
-      "deleteAccount"
-    );
+    const resultBroadcast = YjsWS.broadcastNotification(storedUserID, 10);
     if (!resultBroadcast) return { status: 500 };
 
     const resultCloseConn = YjsWS.closeAll(storedUserID);
@@ -206,10 +203,7 @@ export const changeUserID = async (
     const resultCU = await Sessions.updateUserID(oldUserID, newUserID);
     if (!resultCU) return { status: 500 };
 
-    const resultBroadcast = YjsWS.broadcastNotification(
-      oldUserID,
-      "changeUserID"
-    );
+    const resultBroadcast = YjsWS.broadcastNotification(oldUserID, 11);
     if (!resultBroadcast) return { status: 500 };
 
     const resultCloseConn = YjsWS.closeAll(oldUserID);
@@ -249,10 +243,7 @@ export const changePassword = async (
         .where("id", userID)
         .update({ password: newPassword });
 
-      const resultBroadcast = YjsWS.broadcastNotification(
-        userID,
-        "changePassword"
-      );
+      const resultBroadcast = YjsWS.broadcastNotification(userID, 12);
       if (!resultBroadcast) return false;
 
       return true;
