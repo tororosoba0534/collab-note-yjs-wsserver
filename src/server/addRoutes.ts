@@ -61,8 +61,8 @@ export const addRoutes = (app: Express): void => {
     console.log("deleteAccount called");
 
     const sessionID = Sessions.req2Token(req);
-    const { addminPassword } = req.body;
-    const { status } = await deleteAccount(sessionID, addminPassword);
+    const { adminPassword } = req.body;
+    const { status } = await deleteAccount(sessionID, adminPassword);
     res.sendStatus(status);
   });
 
