@@ -19,8 +19,8 @@ export const addRoutes = (app: Express): void => {
   app.post("/create-account", async (req, res) => {
     console.log("create account called");
 
-    const { userID, password } = req.body;
-    const { status } = await createAccount(userID, password);
+    const { userID, password, adminPassword } = req.body;
+    const { status } = await createAccount(userID, password, adminPassword);
 
     res.sendStatus(status);
   });
@@ -61,25 +61,43 @@ export const addRoutes = (app: Express): void => {
     console.log("deleteAccount called");
 
     const sessionID = Sessions.req2Token(req);
-    const { status } = await deleteAccount(sessionID);
+    const { addminPassword } = req.body;
+    const { status } = await deleteAccount(sessionID, addminPassword);
     res.sendStatus(status);
   });
 
   app.post("/personal/change-userid", async (req, res) => {
     console.log("changeUserid called");
 
-    const oldSessionID = Sessions.req2Token(req);
-    const { newUserID } = req.body;
-    const { status } = await changeUserID(oldSessionID, newUserID);
+    const sessionID = Sessions.req2Token(req);
+    const { newUserID, adminPassword } = req.body;
+    const { status } = await changeUserID(sessionID, adminPassword, newUserID);
     res.sendStatus(status);
   });
 
   app.post("/personal/change-password", async (req, res) => {
     console.log("changePassword called");
 
-    const oldSessionID = Sessions.req2Token(req);
-    const { newPassword } = req.body;
-    const { staus } = await changePassword(oldSessionID, newPassword);
-    res.sendStatus(staus);
+    const sessionID = Sessions.req2Token(req);
+    const { newPassword, adminPassword } = req.body;
+    const { status } = await changePassword(
+      sessionID,
+      adminPassword,
+      newPassword
+    );
+    res.sendStatus(status);
+  });
+
+  app.post("/personal/change-admin-password", async (req, res) => {
+    console.log("changeAdminPassword called");
+
+    const sessionID = Sessions.req2Token(req);
+    const { newAdmimnPassword, oldAdminPassword } = req.body;
+    const { status } = await changePassword(
+      sessionID,
+      oldAdminPassword,
+      newAdmimnPassword
+    );
+    res.sendStatus(status);
   });
 };

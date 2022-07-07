@@ -42,7 +42,9 @@ export class Binary {
     return awarenessMsg;
   };
 
-  static notificationMsg = (messageType: 10 | 11 | 12 | 20): Uint8Array => {
+  static notificationMsg = (
+    messageType: 10 | 11 | 12 | 13 | 20
+  ): Uint8Array => {
     const encoder = encoding.createEncoder();
     encoding.writeVarUint(encoder, messageType);
     return encoding.toUint8Array(encoder);
@@ -78,7 +80,7 @@ export class Binary {
         break;
       }
       case yjsConsts.MESSAGE_TEST: {
-        YjsWS.broadcastNotification(doc.name, 20);
+        YjsWS.broadcastNotification(doc.name, yjsConsts.MESSAGE_TEST);
         break;
       }
       case yjsConsts.MESSAGE_TEST_CLOSE: {

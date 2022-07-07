@@ -1,6 +1,7 @@
 export type DBUsers = {
   id: string;
   password: string;
+  admin_password: string;
 };
 
 export type DBSessions = {
