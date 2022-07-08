@@ -58,7 +58,7 @@ export class YjsWS {
 
   static broadcastNotification = (
     docname: string,
-    messageType: 10 | 11 | 12 | 20
+    messageType: 10 | 11 | 12 | 13 | 20
   ): boolean => {
     const doc = YDocsStore.get(docname);
     if (!doc) return false;

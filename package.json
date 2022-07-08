@@ -36,7 +36,8 @@
     "dev": "env-cmd -f .env.development nodemon src/index.ts",
     "db-test": "env-cmd -f .env.development ts-node src/database/confirmIfConnect.ts",
     "docker-up": "cd .devcontainer && docker compose up -d && cd ..",
-    "docker-down": "cd .devcontainer && docker compose down && cd .."
+    "docker-down": "cd .devcontainer && docker compose down && cd ..",
+    "docker-rm": "sudo rm -r .devcontainer/docker-data/pg/"
   },
   "dependencies": {
     "@types/axios": "^0.14.0",

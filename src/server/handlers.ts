@@ -3,6 +3,7 @@ import { DBUsers } from "../database/dbTypes";
 import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
+import { yjsConsts } from "../yjs/yjsConsts";
 import { YjsWS } from "../yjs/YjsWS";
 
 type ResultCreateAccount = {
@@ -10,10 +11,20 @@ type ResultCreateAccount = {
 };
 export const createAccount = async (
   userID: any,
-  password: any
+  password: any,
+  adminPassword: any
 ): Promise<ResultCreateAccount> => {
-  if (IsNOTvalid.password(password) || IsNOTvalid.userID(userID)) {
+  if (
+    IsNOTvalid.password(password) ||
+    IsNOTvalid.userID(userID) ||
+    IsNOTvalid.password(adminPassword)
+  ) {
     console.error("request type invalid.");
+    return { status: 400 };
+  }
+
+  if (password === adminPassword) {
+    console.error("adminPassword should differ from password.");
     return { status: 400 };
   }
 
@@ -30,7 +41,11 @@ export const createAccount = async (
         return { status: 403 };
       }
 
-      await trx<DBUsers>("users").insert({ id: userID, password });
+      await trx<DBUsers>("users").insert({
+        id: userID,
+        password,
+        admin_password: adminPassword,
+      });
       console.log("resister succeeded.");
       return { status: 200 };
     });
@@ -149,10 +164,11 @@ export const logout = async (sessionID: string): Promise<ResultLogout> => {
 };
 
 type ResultDeleteAccount = {
-  status: 200 | 401 | 500;
+  status: 200 | 401 | 403 | 500;
 };
 export const deleteAccount = async (
-  sessionID: string
+  sessionID: string,
+  adminPassword: any
 ): Promise<ResultDeleteAccount> => {
   if (IsNOTvalid.sessionID(sessionID)) {
     return { status: 401 };
@@ -165,10 +181,25 @@ export const deleteAccount = async (
       return { status: 401 };
     }
 
+    if (IsNOTvalid.password(adminPassword)) {
+      return { status: 403 };
+    }
+
+    const storedUserInfo = await knexClient<DBUsers>("users").where(
+      "id",
+      storedUserID
+    );
+    if (storedUserInfo[0].admin_password !== adminPassword) {
+      return { status: 403 };
+    }
+
     const resultDA = await Sessions.deleteByUserID(storedUserID);
     if (!resultDA) return { status: 500 };
 
-    const resultBroadcast = YjsWS.broadcastNotification(storedUserID, 10);
+    const resultBroadcast = YjsWS.broadcastNotification(
+      storedUserID,
+      yjsConsts.MESSAGE_DELETE_ACCOUNT
+    );
     if (!resultBroadcast) return { status: 500 };
 
     const resultCloseConn = YjsWS.closeAll(storedUserID);
@@ -182,10 +213,11 @@ export const deleteAccount = async (
 };
 
 type ResultChangeUserID = {
-  status: 200 | 400 | 401 | 500;
+  status: 200 | 400 | 401 | 403 | 500;
 };
 export const changeUserID = async (
   sessionID: string,
+  adminPassword: any,
   newUserID: any
 ): Promise<ResultChangeUserID> => {
   if (IsNOTvalid.sessionID(sessionID)) {
@@ -200,10 +232,24 @@ export const changeUserID = async (
     const oldUserID = await Sessions.token2UserID(sessionID);
     if (!oldUserID) return { status: 401 };
 
+    if (IsNOTvalid.password(adminPassword)) {
+      return { status: 403 };
+    }
+    const oldUserInfo = await knexClient<DBUsers>("users").where(
+      "id",
+      oldUserID
+    );
+    if (oldUserInfo[0].admin_password !== adminPassword) {
+      return { status: 403 };
+    }
+
     const resultCU = await Sessions.updateUserID(oldUserID, newUserID);
     if (!resultCU) return { status: 500 };
 
-    const resultBroadcast = YjsWS.broadcastNotification(oldUserID, 11);
+    const resultBroadcast = YjsWS.broadcastNotification(
+      oldUserID,
+      yjsConsts.MESSAGE_CHANGE_USER_ID
+    );
     if (!resultBroadcast) return { status: 500 };
 
     const resultCloseConn = YjsWS.closeAll(oldUserID);
@@ -220,39 +266,115 @@ export const changeUserID = async (
 };
 
 type ResultChangePassword = {
-  staus: 200 | 400 | 401 | 500;
+  status: 200 | 400 | 401 | 403 | 500;
 };
 export const changePassword = async (
   sessionID: string,
+  adminPassword: any,
   newPassword: any
 ): Promise<ResultChangePassword> => {
   if (IsNOTvalid.sessionID(sessionID)) {
-    return { staus: 401 };
+    return { status: 401 };
   }
 
   if (IsNOTvalid.password(newPassword)) {
-    return { staus: 400 };
+    return { status: 400 };
   }
 
   try {
     const userID = await Sessions.token2UserID(sessionID);
-    if (!userID) return { staus: 401 };
+    if (!userID) return { status: 401 };
+
+    if (IsNOTvalid.password(adminPassword)) {
+      return { status: 403 };
+    }
+
+    const storedUserInfo = await knexClient<DBUsers>("users").where(
+      "id",
+      userID
+    );
+    if (storedUserInfo[0].admin_password !== adminPassword) {
+      return { status: 403 };
+    }
+    if (storedUserInfo[0].password === adminPassword) {
+      return { status: 400 };
+    }
 
     const result: boolean = await knexClient.transaction(async (trx) => {
       await trx<DBUsers>("users")
         .where("id", userID)
         .update({ password: newPassword });
 
-      const resultBroadcast = YjsWS.broadcastNotification(userID, 12);
+      const resultBroadcast = YjsWS.broadcastNotification(
+        userID,
+        yjsConsts.MESSAGE_CHANGE_PASSWORD
+      );
       if (!resultBroadcast) return false;
 
       return true;
     });
 
-    if (!result) return { staus: 500 };
+    if (!result) return { status: 500 };
 
-    return { staus: 200 };
+    return { status: 200 };
   } catch (e) {
-    return { staus: 500 };
+    return { status: 500 };
+  }
+};
+
+type ResultChangeAdminPassword = {
+  status: 200 | 400 | 401 | 403 | 500;
+};
+export const changeAdminPassword = async (
+  sessionID: string,
+  oldAdminPassword: any,
+  newAdminPassword: any
+): Promise<ResultChangeAdminPassword> => {
+  if (IsNOTvalid.sessionID(sessionID)) {
+    return { status: 401 };
+  }
+
+  if (IsNOTvalid.password(oldAdminPassword)) {
+    return { status: 403 };
+  }
+
+  if (IsNOTvalid.password(newAdminPassword)) {
+    return { status: 400 };
+  }
+
+  try {
+    const userID = await Sessions.token2UserID(sessionID);
+    if (!userID) return { status: 401 };
+
+    const storedUserInfo = await knexClient<DBUsers>("users").where(
+      "id",
+      userID
+    );
+    if (storedUserInfo[0].admin_password !== oldAdminPassword) {
+      return { status: 403 };
+    }
+    if (storedUserInfo[0].password === newAdminPassword) {
+      return { status: 400 };
+    }
+
+    const result: boolean = await knexClient.transaction(async (trx) => {
+      await trx<DBUsers>("users")
+        .where("id", userID)
+        .update({ admin_password: newAdminPassword });
+
+      const resultBroadcast = YjsWS.broadcastNotification(
+        userID,
+        yjsConsts.MESSAGE_CHANGE_ADMIN_PASSWORD
+      );
+      if (!resultBroadcast) return false;
+
+      return true;
+    });
+
+    if (!result) return { status: 500 };
+
+    return { status: 200 };
+  } catch (e) {
+    return { status: 500 };
   }
 };
