@@ -9,6 +9,7 @@ import {
   checkUserID,
   login,
   createAccount,
+  changeAdminPassword,
 } from "./handlers";
 
 export const addRoutes = (app: Express): void => {
@@ -92,11 +93,11 @@ export const addRoutes = (app: Express): void => {
     console.log("changeAdminPassword called");
 
     const sessionID = Sessions.req2Token(req);
-    const { newAdmimnPassword, oldAdminPassword } = req.body;
-    const { status } = await changePassword(
+    const { newAdminPassword, oldAdminPassword } = req.body;
+    const { status } = await changeAdminPassword(
       sessionID,
       oldAdminPassword,
-      newAdmimnPassword
+      newAdminPassword
     );
     res.sendStatus(status);
   });
