@@ -54,9 +54,11 @@ export class YjsDB {
   };
 
   static persistUpdate = async (
-    doc: WSSharedDoc,
+    docname: string,
     update: Uint8Array
   ): Promise<void> => {
-    await knexClient("yjs_updates").insert({ user_id: doc.name, update });
+    console.log(`persisted update: ${update}`);
+
+    await knexClient("yjs_updates").insert({ user_id: docname, update });
   };
 }

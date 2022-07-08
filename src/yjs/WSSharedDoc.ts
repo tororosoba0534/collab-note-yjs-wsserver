@@ -28,7 +28,7 @@ const updateHandler = async (
 
   if (shouldPersist) {
     // console.log("PERSIST");
-    await YjsDB.persistUpdate(doc, update);
+    await YjsDB.persistUpdate(doc.name, update);
   }
 };
 

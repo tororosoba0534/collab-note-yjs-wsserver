@@ -3,7 +3,9 @@ import { DBUsers } from "../database/dbTypes";
 import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
+import { makeInitContent } from "../yjs/prosemirror";
 import { yjsConsts } from "../yjs/yjsConsts";
+import { YjsDB } from "../yjs/YjsDB";
 import { YjsWS } from "../yjs/YjsWS";
 
 type ResultCreateAccount = {
@@ -46,9 +48,12 @@ export const createAccount = async (
         password,
         admin_password: adminPassword,
       });
+
       console.log("resister succeeded.");
       return { status: 200 };
     });
+
+    await YjsDB.persistUpdate(userID, makeInitContent());
   } catch (e) {
     renderError(e);
     dbResult = { status: 500 };
