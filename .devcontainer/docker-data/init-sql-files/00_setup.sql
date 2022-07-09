@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
-    password TEXT NOT NULL,
-    admin_password TEXT NOT NULL
+    hash TEXT NOT NULL,
+    admin_hash TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS yjs_updates (

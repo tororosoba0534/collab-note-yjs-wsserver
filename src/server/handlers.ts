@@ -2,6 +2,7 @@ import { Sessions } from "../auth/Sessions";
 import { DBUsers } from "../database/dbTypes";
 import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
+import { hashPassword, isNotSameHash } from "../utils/hashPassword";
 import { IsNOTvalid } from "../utils/validations";
 import { makeInitContent } from "../yjs/prosemirror";
 import { yjsConsts } from "../yjs/yjsConsts";
@@ -33,6 +34,9 @@ export const createAccount = async (
   let dbResult: ResultCreateAccount;
 
   try {
+    const hash = hashPassword(password);
+    const adminHash = hashPassword(adminPassword);
+
     dbResult = await knexClient.transaction(async (trx) => {
       const stored = await trx<DBUsers>("users")
         .where("id", userID)
@@ -45,8 +49,8 @@ export const createAccount = async (
 
       await trx<DBUsers>("users").insert({
         id: userID,
-        password,
-        admin_password: adminPassword,
+        hash,
+        admin_hash: adminHash,
       });
 
       console.log("resister succeeded.");
@@ -107,8 +111,14 @@ export const login = async (
       console.log("user does NOT exist.");
       return { status: 401, sessionID: "" };
     }
-    const expectedPassword = storedUserData[0].password;
-    if (!expectedPassword || expectedPassword !== password) {
+    const storedHash = storedUserData[0].hash;
+    if (!storedHash) {
+      return { status: 401, sessionID: "" };
+    }
+
+    // const hash = hashPassword(password);
+    // console.log(`submit hash: ${hash}`);
+    if (isNotSameHash(password, storedHash)) {
       return { status: 401, sessionID: "" };
     }
 
@@ -194,7 +204,7 @@ export const deleteAccount = async (
       "id",
       storedUserID
     );
-    if (storedUserInfo[0].admin_password !== adminPassword) {
+    if (isNotSameHash(adminPassword, storedUserInfo[0].admin_hash)) {
       return { status: 403 };
     }
 
@@ -244,7 +254,8 @@ export const changeUserID = async (
       "id",
       oldUserID
     );
-    if (oldUserInfo[0].admin_password !== adminPassword) {
+    // if (oldUserInfo[0].admin_hash !== hashPassword(adminPassword)) {
+    if (isNotSameHash(adminPassword, oldUserInfo[0].admin_hash)) {
       return { status: 403 };
     }
 
@@ -298,17 +309,22 @@ export const changePassword = async (
       "id",
       userID
     );
-    if (storedUserInfo[0].admin_password !== adminPassword) {
+
+    // const adminHash = hashPassword(adminPassword);
+
+    // if (storedUserInfo[0].admin_hash !== adminHash) {
+    if (isNotSameHash(adminPassword, storedUserInfo[0].admin_hash)) {
       return { status: 403 };
     }
-    if (storedUserInfo[0].password === adminPassword) {
+    // if (storedUserInfo[0].hash === adminHash) {
+    if (!isNotSameHash(adminPassword, storedUserInfo[0].hash)) {
       return { status: 400 };
     }
 
+    const newHash = hashPassword(newPassword);
+
     const result: boolean = await knexClient.transaction(async (trx) => {
-      await trx<DBUsers>("users")
-        .where("id", userID)
-        .update({ password: newPassword });
+      await trx<DBUsers>("users").where("id", userID).update({ hash: newHash });
 
       const resultBroadcast = YjsWS.broadcastNotification(
         userID,
@@ -355,17 +371,23 @@ export const changeAdminPassword = async (
       "id",
       userID
     );
-    if (storedUserInfo[0].admin_password !== oldAdminPassword) {
+
+    // const oldAdminHash = hashPassword(oldAdminPassword);
+    // if (storedUserInfo[0].admin_hash !== oldAdminHash) {
+    if (isNotSameHash(oldAdminPassword, storedUserInfo[0].admin_hash)) {
       return { status: 403 };
     }
-    if (storedUserInfo[0].password === newAdminPassword) {
+    // const newAdminHash = hashPassword(newAdminPassword);
+    // if (storedUserInfo[0].hash === newAdminHash) {
+    if (!isNotSameHash(newAdminPassword, storedUserInfo[0].admin_hash)) {
       return { status: 400 };
     }
 
+    const newAdminHash = hashPassword(newAdminPassword);
     const result: boolean = await knexClient.transaction(async (trx) => {
       await trx<DBUsers>("users")
         .where("id", userID)
-        .update({ admin_password: newAdminPassword });
+        .update({ admin_hash: newAdminHash });
 
       const resultBroadcast = YjsWS.broadcastNotification(
         userID,
