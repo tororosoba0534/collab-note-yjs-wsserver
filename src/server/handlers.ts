@@ -10,7 +10,7 @@ import { YjsDB } from "../yjs/YjsDB";
 import { YjsWS } from "../yjs/YjsWS";
 
 type ResultCreateAccount = {
-  status: 200 | 400 | 403 | 500;
+  status: 200 | 400 | 409 | 500;
 };
 export const createAccount = async (
   userID: any,
@@ -44,7 +44,7 @@ export const createAccount = async (
       if (stored.length !== 0) {
         console.log("same ID already exists");
 
-        return { status: 403 };
+        return { status: 409 };
       }
 
       await trx<DBUsers>("users").insert({
@@ -67,7 +67,7 @@ export const createAccount = async (
 };
 
 type ResultCheckUserID = {
-  status: 200 | 400 | 403 | 500;
+  status: 200 | 400 | 409 | 500;
 };
 export const checkUserID = async (userID: any): Promise<ResultCheckUserID> => {
   if (IsNOTvalid.userID(userID)) {
@@ -78,7 +78,7 @@ export const checkUserID = async (userID: any): Promise<ResultCheckUserID> => {
     const stored = await knexClient<DBUsers>("users").where("id", userID);
 
     if (stored.length !== 0) {
-      return { status: 403 };
+      return { status: 409 };
     }
     return { status: 200 };
   } catch (e) {
@@ -228,7 +228,7 @@ export const deleteAccount = async (
 };
 
 type ResultChangeUserID = {
-  status: 200 | 400 | 401 | 403 | 500;
+  status: 200 | 400 | 401 | 403 | 409 | 500;
 };
 export const changeUserID = async (
   sessionID: string,
@@ -244,6 +244,14 @@ export const changeUserID = async (
   }
 
   try {
+    const sameIDUsers = await knexClient<DBUsers>("users").where(
+      "id",
+      newUserID
+    );
+    if (sameIDUsers[0].id) {
+      return { status: 409 };
+    }
+
     const oldUserID = await Sessions.token2UserID(sessionID);
     if (!oldUserID) return { status: 401 };
 

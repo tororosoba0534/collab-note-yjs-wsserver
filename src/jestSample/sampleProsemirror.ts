@@ -1,3 +1,25 @@
-import { makeInitContent } from "../yjs/prosemirror";
+import { prosemirrorJSONToYDoc } from "y-prosemirror";
+import { schema } from "prosemirror-schema-basic";
+import * as Y from "yjs";
 
-makeInitContent();
+const testUpdate = () => {
+  const ydoc = prosemirrorJSONToYDoc(schema, {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "Example Text",
+          },
+        ],
+      },
+    ],
+  });
+
+  const update = Y.encodeStateAsUpdate(ydoc);
+  console.log(`created update: ${update}`);
+};
+
+testUpdate();
