@@ -248,7 +248,7 @@ export const changeUserID = async (
       "id",
       newUserID
     );
-    if (sameIDUsers[0].id) {
+    if (sameIDUsers.length !== 0) {
       return { status: 409 };
     }
 
