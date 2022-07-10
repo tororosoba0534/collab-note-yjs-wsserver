@@ -290,7 +290,7 @@ export const changeUserID = async (
 };
 
 type ResultChangePassword = {
-  status: 200 | 400 | 401 | 403 | 500;
+  status: 200 | 400 | 401 | 403 | 409 | 500;
 };
 export const changePassword = async (
   sessionID: string,
@@ -326,7 +326,7 @@ export const changePassword = async (
     }
     // if (storedUserInfo[0].hash === adminHash) {
     if (!isNotSameHash(adminPassword, storedUserInfo[0].hash)) {
-      return { status: 400 };
+      return { status: 409 };
     }
 
     const newHash = hashPassword(newPassword);
@@ -352,7 +352,7 @@ export const changePassword = async (
 };
 
 type ResultChangeAdminPassword = {
-  status: 200 | 400 | 401 | 403 | 500;
+  status: 200 | 400 | 401 | 403 | 409 | 500;
 };
 export const changeAdminPassword = async (
   sessionID: string,
@@ -387,8 +387,8 @@ export const changeAdminPassword = async (
     }
     // const newAdminHash = hashPassword(newAdminPassword);
     // if (storedUserInfo[0].hash === newAdminHash) {
-    if (!isNotSameHash(newAdminPassword, storedUserInfo[0].admin_hash)) {
-      return { status: 400 };
+    if (!isNotSameHash(newAdminPassword, storedUserInfo[0].hash)) {
+      return { status: 409 };
     }
 
     const newAdminHash = hashPassword(newAdminPassword);
