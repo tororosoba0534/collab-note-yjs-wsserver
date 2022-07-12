@@ -6144,13 +6144,6 @@ xtend@^4.0.0:
   resolved "https://registry.yarnpkg.com/xtend/-/xtend-4.0.2.tgz#bb72779f5fa465186b1f438f674fa347fdb5db54"
   integrity sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==
 
-y-prosemirror@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/y-prosemirror/-/y-prosemirror-1.1.2.tgz#4529e0b897040542c15cc47ba035b88ae0f8da44"
-  integrity sha512-+5Pf30ugJIatxy8DAmRMhkiYCI2xxBg+T5Btg9G/7v5La0I5WpR/GT/Kg8RGLv8LiG4/c4bVAEEM+efyVehLIQ==
-  dependencies:
-    lib0 "^0.2.42"
-
 y-protocols@^1.0.5:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/y-protocols/-/y-protocols-1.0.5.tgz#91d574250060b29fcac8f8eb5e276fbad594245e"
