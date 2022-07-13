@@ -30,13 +30,13 @@ class DBClass {
           });
   };
 
-  beforeTest = () => {
+  beforeTest = async () => {
     DB.init();
-    DB.knex<DBUsers>("users").delete();
+    await DB.knex<DBUsers>("users").delete();
   };
 
-  afterTest = () => {
-    DB.knex.destroy();
+  afterTest = async () => {
+    await DB.knex.destroy();
   };
 }
 

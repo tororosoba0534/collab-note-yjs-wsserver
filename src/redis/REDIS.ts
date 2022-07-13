@@ -35,28 +35,28 @@ class REDISClass {
     this._sessions = new Redis(config.redis.CONNECTION_URI);
   };
 
-  beforeTest = () => {
+  beforeTest = async () => {
     this.init();
-    this.yjsPub.flushall();
-    this.yjsSub.flushall();
-    this.sessions.flushall();
+    await this.yjsPub.flushall();
+    await this.yjsSub.flushall();
+    await this.sessions.flushall();
   };
 
-  afterTest = () => {
+  afterTest = async () => {
     try {
-      this.yjsPub.flushall();
-      this.yjsPub.quit();
-      this.yjsSub.flushall();
-      this.yjsSub.quit();
-      this.sessions.flushall();
-      this.sessions.quit();
+      await this.yjsPub.flushall();
+      await this.yjsPub.quit();
+      await this.yjsSub.flushall();
+      await this.yjsSub.quit();
+      await this.sessions.flushall();
+      await this.sessions.quit();
     } catch (e) {
-      this._yjsPub?.flushall();
-      this._yjsPub?.quit();
-      this._yjsSub?.flushall();
-      this._yjsSub?.quit();
-      this._sessions?.flushall();
-      this._sessions?.quit();
+      await this._yjsPub?.flushall();
+      await this._yjsPub?.quit();
+      await this._yjsSub?.flushall();
+      await this._yjsSub?.quit();
+      await this._sessions?.flushall();
+      await this._sessions?.quit();
       throw e;
     }
   };
