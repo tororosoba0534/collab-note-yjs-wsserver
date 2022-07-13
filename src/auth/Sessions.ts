@@ -3,8 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import { Request } from "express";
 import { IsNOTvalid } from "../utils/validations";
 import { _privateRedis4Sessions } from "../redis/session";
-import knexClient from "../database/knexClient";
 import { DBSessions, DBUsers } from "../database/dbTypes";
+import { DB } from "../database/DB";
 
 /*
 Usage of Redis in session management:
@@ -40,7 +40,7 @@ export class Sessions {
     const expireAt =
       Math.floor(date.getTime() / 1000) + config.SESSION_EXPIRATION_TIME;
 
-    await knexClient<DBSessions>("sessions").insert({
+    await DB.knex<DBSessions>("sessions").insert({
       session_id: newSessionID,
       user_id: userID,
       expire_at: expireAt,
@@ -57,7 +57,7 @@ export class Sessions {
       return false;
     }
 
-    await knexClient<DBSessions>("sessions")
+    await DB.knex<DBSessions>("sessions")
       .where("session_id", sessionID)
       .delete();
 
@@ -72,7 +72,7 @@ export class Sessions {
 
     let dbResult: boolean;
     try {
-      dbResult = await knexClient.transaction(async (trx) => {
+      dbResult = await DB.knex.transaction(async (trx) => {
         const dbSessions = await trx<DBSessions>("sessions").where(
           "user_id",
           userID
@@ -109,7 +109,7 @@ export class Sessions {
 
     let dbResult: boolean;
     try {
-      dbResult = await knexClient.transaction(async (trx) => {
+      dbResult = await DB.knex.transaction(async (trx) => {
         const dbSessions = await trx<DBSessions>("sessions").where(
           "user_id",
           oldUserID

@@ -1,6 +1,6 @@
 import { Sessions } from "../../auth/Sessions";
+import { DB } from "../../database/DB";
 import { DBUsers } from "../../database/dbTypes";
-import knexClient from "../../database/knexClient";
 import { renderError } from "../../utils/errorHandlings";
 import { isNotSameHash } from "../../utils/hashPassword";
 import { IsNOTvalid } from "../../utils/validations";
@@ -29,7 +29,7 @@ export const deleteAccount = async (
       return { status: 403 };
     }
 
-    const storedUserInfo = await knexClient<DBUsers>("users").where(
+    const storedUserInfo = await DB.knex<DBUsers>("users").where(
       "id",
       storedUserID
     );

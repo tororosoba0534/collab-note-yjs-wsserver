@@ -1,5 +1,5 @@
+import { DB } from "../../database/DB";
 import { DBUsers } from "../../database/dbTypes";
-import knexClient from "../../database/knexClient";
 import { renderError } from "../../utils/errorHandlings";
 import { IsNOTvalid } from "../../utils/validations";
 
@@ -12,7 +12,7 @@ export const checkUserID = async (userID: any): Promise<ResultCheckUserID> => {
   }
 
   try {
-    const stored = await knexClient<DBUsers>("users").where("id", userID);
+    const stored = await DB.knex<DBUsers>("users").where("id", userID);
 
     if (stored.length !== 0) {
       return { status: 409 };

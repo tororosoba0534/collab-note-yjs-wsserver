@@ -1,5 +1,5 @@
+import { DB } from "../database/DB";
 import { DBUsers } from "../database/dbTypes";
-import knexClient from "../database/knexClient";
 import { renderError } from "../utils/errorHandlings";
 import { IsNOTvalid } from "../utils/validations";
 
@@ -9,7 +9,7 @@ export const isDocIDValid = async (docID: string): Promise<boolean> => {
   }
 
   try {
-    const storedUsers = await knexClient<DBUsers>("users").where("id", docID);
+    const storedUsers = await DB.knex<DBUsers>("users").where("id", docID);
 
     if (storedUsers.length === 0) {
       console.log("docID does not exist.");

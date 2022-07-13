@@ -1,6 +1,6 @@
 import { Sessions } from "../../auth/Sessions";
+import { DB } from "../../database/DB";
 import { DBUsers } from "../../database/dbTypes";
-import knexClient from "../../database/knexClient";
 import { renderError } from "../../utils/errorHandlings";
 import { isNotSameHash } from "../../utils/hashPassword";
 import { IsNOTvalid } from "../../utils/validations";
@@ -24,10 +24,7 @@ export const changeUserID = async (
   }
 
   try {
-    const sameIDUsers = await knexClient<DBUsers>("users").where(
-      "id",
-      newUserID
-    );
+    const sameIDUsers = await DB.knex<DBUsers>("users").where("id", newUserID);
     if (sameIDUsers.length !== 0) {
       return { status: 409 };
     }
@@ -38,10 +35,7 @@ export const changeUserID = async (
     if (IsNOTvalid.password(adminPassword)) {
       return { status: 403 };
     }
-    const oldUserInfo = await knexClient<DBUsers>("users").where(
-      "id",
-      oldUserID
-    );
+    const oldUserInfo = await DB.knex<DBUsers>("users").where("id", oldUserID);
     // if (oldUserInfo[0].admin_hash !== hashPassword(adminPassword)) {
     if (isNotSameHash(adminPassword, oldUserInfo[0].admin_hash)) {
       return { status: 403 };

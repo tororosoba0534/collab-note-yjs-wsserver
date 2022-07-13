@@ -1,6 +1,6 @@
 import { Sessions } from "../../auth/Sessions";
+import { DB } from "../../database/DB";
 import { DBUsers } from "../../database/dbTypes";
-import knexClient from "../../database/knexClient";
 import { isNotSameHash, hashPassword } from "../../utils/hashPassword";
 import { IsNOTvalid } from "../../utils/validations";
 import { yjsConsts } from "../../yjs/yjsConsts";
@@ -30,10 +30,7 @@ export const changePassword = async (
       return { status: 403 };
     }
 
-    const storedUserInfo = await knexClient<DBUsers>("users").where(
-      "id",
-      userID
-    );
+    const storedUserInfo = await DB.knex<DBUsers>("users").where("id", userID);
 
     // const adminHash = hashPassword(adminPassword);
 
@@ -48,7 +45,7 @@ export const changePassword = async (
 
     const newHash = hashPassword(newPassword);
 
-    const result: boolean = await knexClient.transaction(async (trx) => {
+    const result: boolean = await DB.knex.transaction(async (trx) => {
       await trx<DBUsers>("users").where("id", userID).update({ hash: newHash });
 
       const resultBroadcast = YjsWS.broadcastNotification(

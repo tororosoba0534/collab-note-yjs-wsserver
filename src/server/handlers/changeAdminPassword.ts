@@ -1,6 +1,6 @@
 import { Sessions } from "../../auth/Sessions";
+import { DB } from "../../database/DB";
 import { DBUsers } from "../../database/dbTypes";
-import knexClient from "../../database/knexClient";
 import { isNotSameHash, hashPassword } from "../../utils/hashPassword";
 import { IsNOTvalid } from "../../utils/validations";
 import { yjsConsts } from "../../yjs/yjsConsts";
@@ -30,10 +30,7 @@ export const changeAdminPassword = async (
     const userID = await Sessions.token2UserID(sessionID);
     if (!userID) return { status: 401 };
 
-    const storedUserInfo = await knexClient<DBUsers>("users").where(
-      "id",
-      userID
-    );
+    const storedUserInfo = await DB.knex<DBUsers>("users").where("id", userID);
 
     // const oldAdminHash = hashPassword(oldAdminPassword);
     // if (storedUserInfo[0].admin_hash !== oldAdminHash) {
@@ -47,7 +44,7 @@ export const changeAdminPassword = async (
     }
 
     const newAdminHash = hashPassword(newAdminPassword);
-    const result: boolean = await knexClient.transaction(async (trx) => {
+    const result: boolean = await DB.knex.transaction(async (trx) => {
       await trx<DBUsers>("users")
         .where("id", userID)
         .update({ admin_hash: newAdminHash });

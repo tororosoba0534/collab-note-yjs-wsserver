@@ -1,7 +1,7 @@
 import { yjsConsts } from "./yjsConsts";
 import WSSharedDoc from "./WSSharedDoc";
-import knexClient from "../database/knexClient";
 import * as Y from "yjs";
+import { DB } from "../database/DB";
 
 interface DBUpdate {
   id: string;
@@ -11,8 +11,8 @@ interface DBUpdate {
 
 export class YjsDB {
   static getUpdates = async (doc: WSSharedDoc): Promise<DBUpdate[]> => {
-    return knexClient.transaction(async (trx) => {
-      const updates = await knexClient<DBUpdate>("yjs_updates")
+    return DB.knex.transaction(async (trx) => {
+      const updates = await DB.knex<DBUpdate>("yjs_updates")
         .transacting(trx)
         .where("user_id", doc.name)
         .forUpdate()
@@ -28,14 +28,14 @@ export class YjsDB {
         });
 
         const [mergedUpdates] = await Promise.all([
-          knexClient<DBUpdate>("yjs_updates")
+          DB.knex<DBUpdate>("yjs_updates")
             .transacting(trx)
             .insert({
               user_id: doc.name,
               update: Y.encodeStateAsUpdate(dbYDoc),
             })
             .returning("*"),
-          knexClient("yjs_updates")
+          DB.knex("yjs_updates")
             .transacting(trx)
             .where("user_id", doc.name)
             .whereIn(
@@ -58,6 +58,6 @@ export class YjsDB {
   ): Promise<void> => {
     console.log(`persisted update: ${update}`);
 
-    await knexClient("yjs_updates").insert({ user_id: docname, update });
+    await DB.knex("yjs_updates").insert({ user_id: docname, update });
   };
 }

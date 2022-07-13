@@ -1,6 +1,6 @@
 import { Sessions } from "../../auth/Sessions";
+import { DB } from "../../database/DB";
 import { DBUsers } from "../../database/dbTypes";
-import knexClient from "../../database/knexClient";
 import { renderError } from "../../utils/errorHandlings";
 import { isNotSameHash } from "../../utils/hashPassword";
 import { IsNOTvalid } from "../../utils/validations";
@@ -18,7 +18,7 @@ export const login = async (
   }
 
   try {
-    const storedUserData = await knexClient<DBUsers>("users")
+    const storedUserData = await DB.knex<DBUsers>("users")
       .where("id", userID)
       .then((stored) => {
         console.log(`user data in postgres: ${JSON.stringify(stored)}`);

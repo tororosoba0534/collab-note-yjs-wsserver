@@ -1,5 +1,5 @@
+import { DB } from "../../database/DB";
 import { DBUsers } from "../../database/dbTypes";
-import knexClient from "../../database/knexClient";
 import { renderError } from "../../utils/errorHandlings";
 import { hashPassword } from "../../utils/hashPassword";
 import { IsNOTvalid } from "../../utils/validations";
@@ -34,7 +34,7 @@ export const createAccount = async (
     const hash = hashPassword(password);
     const adminHash = hashPassword(adminPassword);
 
-    dbResult = await knexClient.transaction(async (trx) => {
+    dbResult = await DB.knex.transaction(async (trx) => {
       const stored = await trx<DBUsers>("users")
         .where("id", userID)
         .forUpdate();
