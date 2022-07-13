@@ -1,5 +1,5 @@
 const config = {
-  NODE_ENV: process.env.NODE_ENV as "production" | "development",
+  NODE_ENV: process.env.NODE_ENV as "production" | "development" | "test",
   server: {
     PORT: Number(process.env.PORT),
   },
