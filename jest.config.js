@@ -25,14 +25,13 @@
 // };
 
 module.exports = {
-  // // Jestの検索対象となるパス
-  // roots: [
-  //   "<rootDir>"
-  // ],
+  // Jestの検索対象となるパス
+  roots: ["<rootDir>/src/"],
   // テストコードを書いたファイルを特定するための条件
   testMatch: ["**/__tests__/**/*.+(ts|tsx|js)", "./**/*.test.+(ts|tsx|js)"],
   // ts/tsxファイルに対してts-jestを使うよう設定
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",
   },
+  // testPathIgnorePatterns: ["<rootDir>/.vscode/", "<rootDir>/.devcontainer/"],
 };
