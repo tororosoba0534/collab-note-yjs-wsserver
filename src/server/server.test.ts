@@ -11,6 +11,7 @@ beforeAll(async () => {
 afterAll(() => {
   DB.afterTest();
   REDIS.afterTest();
+  server.close();
 });
 
 describe("server", () => {
