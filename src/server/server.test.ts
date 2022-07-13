@@ -1,18 +1,16 @@
 import request from "supertest";
 import { DB } from "../database/DB";
 import server from "./index";
-import Knex from "knex";
-import config from "../config";
+import { REDIS } from "../redis/REDIS";
 
 beforeAll(async () => {
-  DB.knex = Knex({
-    client: "pg",
-    connection: config.db.CONNECTION_URI,
-  });
+  DB.beforeTest();
+  REDIS.beforeTest();
 });
 
 afterAll(() => {
-  DB.knex.destroy();
+  DB.afterTest();
+  REDIS.afterTest();
 });
 
 describe("server", () => {
