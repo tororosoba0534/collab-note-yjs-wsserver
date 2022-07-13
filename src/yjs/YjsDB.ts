@@ -2,7 +2,6 @@ import { yjsConsts } from "./yjsConsts";
 import WSSharedDoc from "./WSSharedDoc";
 import knexClient from "../database/knexClient";
 import * as Y from "yjs";
-import { dbConsts } from "../database/dbConsts";
 
 interface DBUpdate {
   id: string;
@@ -29,7 +28,7 @@ export class YjsDB {
         });
 
         const [mergedUpdates] = await Promise.all([
-          knexClient<DBUpdate>(dbConsts.YJS_UPDATES)
+          knexClient<DBUpdate>("yjs_updates")
             .transacting(trx)
             .insert({
               user_id: doc.name,
