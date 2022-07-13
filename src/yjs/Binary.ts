@@ -6,7 +6,7 @@ import { yjsConsts } from "./yjsConsts";
 import WSSharedDoc from "./WSSharedDoc";
 import { YjsWS } from "./YjsWS";
 import { WebSocket } from "ws";
-import { yjsPub } from "../redis/pubsub";
+import { REDIS } from "../redis/REDIS";
 
 export class Binary {
   static syncUpdateMsg = (update: Uint8Array): Uint8Array => {
@@ -75,7 +75,7 @@ export class Binary {
         // console.log("on message: awareness");
         const update = decoding.readVarUint8Array(decoder);
         // @ts-ignore
-        yjsPub.publishBuffer(doc.awarenessChannel, Buffer.from(update));
+        REDIS.yjsPub.publishBuffer(doc.awarenessChannel, Buffer.from(update));
         awarenessProtocol.applyAwarenessUpdate(doc.awareness, update, conn);
         break;
       }

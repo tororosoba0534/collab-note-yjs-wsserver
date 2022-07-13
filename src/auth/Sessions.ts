@@ -2,9 +2,9 @@ import config from "../config";
 import { v4 as uuidv4 } from "uuid";
 import { Request } from "express";
 import { IsNOTvalid } from "../utils/validations";
-import { _privateRedis4Sessions } from "../redis/session";
 import { DBSessions, DBUsers } from "../database/dbTypes";
 import { DB } from "../database/DB";
+import { REDIS } from "../redis/REDIS";
 
 /*
 Usage of Redis in session management:
@@ -24,7 +24,7 @@ export class Sessions {
   };
 
   static token2UserID = async (sessionID: string): Promise<string> => {
-    const userID = await _privateRedis4Sessions.get(sessionID);
+    const userID = await REDIS.sessions.get(sessionID);
     if (!userID) {
       return "";
     }
@@ -46,8 +46,8 @@ export class Sessions {
       expire_at: expireAt,
     });
 
-    await _privateRedis4Sessions.set(newSessionID, userID);
-    await _privateRedis4Sessions.expireat(newSessionID, expireAt);
+    await REDIS.sessions.set(newSessionID, userID);
+    await REDIS.sessions.expireat(newSessionID, expireAt);
 
     return newSessionID;
   };
@@ -61,7 +61,7 @@ export class Sessions {
       .where("session_id", sessionID)
       .delete();
 
-    await _privateRedis4Sessions.del(sessionID);
+    await REDIS.sessions.del(sessionID);
     return true;
   };
 
@@ -85,10 +85,10 @@ export class Sessions {
         await trx<DBUsers>("users").where("id", userID).delete();
 
         // await Promise.all(dbSessions.map(async (session) => {
-        //   return await _privateRedis4Sessions.del()
+        //   return await REDIS.sessions.del()
         // }))
 
-        await _privateRedis4Sessions.del(dbSessions.map((s) => s.session_id));
+        await REDIS.sessions.del(dbSessions.map((s) => s.session_id));
 
         return true;
       });
@@ -132,11 +132,7 @@ export class Sessions {
         await Promise.all(
           dbSessions.map(
             async (s) =>
-              await _privateRedis4Sessions.set(
-                s.session_id,
-                newUserID,
-                "KEEPTTL"
-              )
+              await REDIS.sessions.set(s.session_id, newUserID, "KEEPTTL")
           )
         );
 

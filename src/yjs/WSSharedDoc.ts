@@ -3,9 +3,9 @@ import * as mutex from "lib0/mutex";
 import * as awarenessProtocol from "y-protocols/awareness";
 import { WebSocket } from "ws";
 import { YjsWS } from "./YjsWS";
-import { yjsPub, yjsSub } from "../redis/pubsub";
 import { YjsDB } from "./YjsDB";
 import { Binary } from "./Binary";
+import { REDIS } from "../redis/REDIS";
 
 const updateHandler = async (
   update: Uint8Array,
@@ -19,7 +19,7 @@ const updateHandler = async (
     // console.log("pub of sync called.");
 
     // @ts-ignore
-    yjsPub.publishBuffer(doc.name, Buffer.from(update)); // do not await
+    REDIS.yjsPub.publishBuffer(doc.name, Buffer.from(update)); // do not await
     shouldPersist = true;
   }
 
@@ -78,8 +78,8 @@ class WSSharedDoc extends Y.Doc {
     this.awareness.on("update", awarenessChangeHandler);
     this.on("update", updateHandler);
 
-    yjsSub.subscribe(this.name, this.awarenessChannel).then(() => {
-      yjsSub.on("messageBuffer", (channel, update) => {
+    REDIS.yjsSub.subscribe(this.name, this.awarenessChannel).then(() => {
+      REDIS.yjsSub.on("messageBuffer", (channel, update) => {
         const channelId = channel.toString();
 
         // update is a Buffer, Buffer is a subclass of Uint8Array, update can be applied
@@ -88,13 +88,13 @@ class WSSharedDoc extends Y.Doc {
         if (channelId === this.name) {
           console.log("sub of sync");
 
-          Y.applyUpdate(this, update, yjsSub);
+          Y.applyUpdate(this, update, REDIS.yjsSub);
         } else if (channelId === this.awarenessChannel) {
           // console.log("here: awareness via pub-sub");
           awarenessProtocol.applyAwarenessUpdate(
             this.awareness,
             update,
-            yjsSub
+            REDIS.yjsSub
           );
         }
       });
@@ -103,7 +103,7 @@ class WSSharedDoc extends Y.Doc {
 
   destroy() {
     super.destroy();
-    yjsSub.unsubscribe(this.name);
+    REDIS.yjsSub.unsubscribe(this.name);
   }
 }
 
