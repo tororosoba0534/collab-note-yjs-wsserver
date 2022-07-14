@@ -58,7 +58,7 @@ describe("server", () => {
     });
   });
 
-  const sessionIDArr: string[] = [];
+  const sessions: { [key: string]: string } = {};
   describe("/login", () => {
     it.each([
       ["testuser1", "passWord1", 200],
@@ -73,27 +73,33 @@ describe("server", () => {
 
         expect(res.statusCode).toBe(resultStatus);
         // expect(typeof res.body.sessionID).toBe("string");
+        // if (res.statusCode === 200) {
+        //   sessionIDArr.push(res.body.sessionID);
+        //   console.log(`sessionIDArr: ${sessionIDArr}`);
+        //   console.log(`sessionIDArr[0]: ${sessionIDArr[0]}`);
+        //   console.log(`sessionIDArr[1]: ${sessionIDArr[1]}`);
+        // }
+        // console.log(`res.body.sessionID: ${res.body.sessionID}`);
+        // sessionIDArr.push(res.body.sessionID);
         if (res.statusCode === 200) {
-          sessionIDArr.push(res.body.sessionID);
+          sessions[userID] = res.body.sessionID;
         }
-        console.log(`res.body.sessionID: ${res.body.sessionID}`);
       }
     );
-    it("confirm sessionIDs existance", () => {
-      expect(sessionIDArr.length).toBe(2);
-    });
+    // it("confirm sessionIDs existance", () => {
+    //   expect(sessionIDArr.length).toBe(2);
+    // });
   });
 
-  // describe("/personal/check-auth existing", () => {
-  //   it.each([sessionIDArr[0], sessionIDArr[1]])(
-  //     "sessionID: %p",
-  //     async (sessionID) => {
-  //       const res = await request(server)
-  //         .post("/personal/check-auth")
-  //         .send({ sessionID });
+  describe("/personal/check-auth existing", () => {
+    it.each(["testuser1", "testuser2"])("sessionID: %p", async (userID) => {
+      const sessionID = sessions[userID];
+      const res = await request(server)
+        .post("/personal/check-auth")
+        .send({ sessionID });
 
-  //       expect(res.statusCode).toBe(200);
-  //     }
-  //   );
-  // });
+      expect(res.statusCode).toBe(200);
+      expect(res.body.userID).toBe(userID);
+    });
+  });
 });
