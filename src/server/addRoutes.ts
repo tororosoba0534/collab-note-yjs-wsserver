@@ -14,7 +14,9 @@ import {
 
 export const addRoutes = (app: Express): void => {
   app.get("/test", (req, res) => {
-    res.send(JSON.stringify({ hello: "Hello from server!" }));
+    res
+      .type("application/json")
+      .send(JSON.stringify({ hello: "Hello from server!" }));
   });
 
   app.post("/create-account", async (req, res) => {
@@ -39,7 +41,9 @@ export const addRoutes = (app: Express): void => {
 
     const { userID, password } = req.body;
     const { status, sessionID } = await login(userID, password);
-    res.status(status).send(JSON.stringify({ sessionID }));
+    const resSessionID = JSON.stringify({ sessionID });
+    console.log(`sessionID: ${resSessionID}`);
+    res.type("application/json").status(status).send(resSessionID);
   });
 
   app.post("/personal/check-auth", async (req, res) => {
@@ -47,7 +51,10 @@ export const addRoutes = (app: Express): void => {
 
     const sessionID = Sessions.req2Token(req);
     const { status, userID } = await checkAuth(sessionID);
-    res.status(status).send(JSON.stringify({ userID }));
+    res
+      .type("application/json")
+      .status(status)
+      .send(JSON.stringify({ userID }));
   });
 
   app.post("/personal/logout", async (req, res) => {

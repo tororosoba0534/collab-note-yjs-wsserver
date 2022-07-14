@@ -42,7 +42,6 @@ export const login = async (
 
     const sessionID = await Sessions.add(userID);
 
-    console.log(`sessionID generated: ${sessionID}`);
     return { status: 200, sessionID };
   } catch (e) {
     renderError(e);
