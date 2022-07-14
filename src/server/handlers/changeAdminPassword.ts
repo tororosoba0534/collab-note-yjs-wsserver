@@ -48,12 +48,15 @@ export const changeAdminPassword = async (
       await trx<DBUsers>("users")
         .where("id", userID)
         .update({ admin_hash: newAdminHash });
-
-      const resultBroadcast = YjsWS.broadcastNotification(
+      YjsWS.broadcastNotification(
         userID,
         yjsConsts.MESSAGE_CHANGE_ADMIN_PASSWORD
       );
-      if (!resultBroadcast) return false;
+      // const resultBroadcast = YjsWS.broadcastNotification(
+      //   userID,
+      //   yjsConsts.MESSAGE_CHANGE_ADMIN_PASSWORD
+      // );
+      // if (!resultBroadcast) return false;
 
       return true;
     });

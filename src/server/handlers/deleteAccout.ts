@@ -40,14 +40,16 @@ export const deleteAccount = async (
     const resultDA = await Sessions.deleteByUserID(storedUserID);
     if (!resultDA) return { status: 500 };
 
-    const resultBroadcast = YjsWS.broadcastNotification(
-      storedUserID,
-      yjsConsts.MESSAGE_DELETE_ACCOUNT
-    );
-    if (!resultBroadcast) return { status: 500 };
+    // const resultBroadcast = YjsWS.broadcastNotification(
+    //   storedUserID,
+    //   yjsConsts.MESSAGE_DELETE_ACCOUNT
+    // );
+    // if (!resultBroadcast) return { status: 500 };
 
-    const resultCloseConn = YjsWS.closeAll(storedUserID);
-    if (!resultCloseConn) return { status: 500 };
+    // const resultCloseConn = YjsWS.closeAll(storedUserID);
+    // if (!resultCloseConn) return { status: 500 };
+    YjsWS.broadcastNotification(storedUserID, yjsConsts.MESSAGE_DELETE_ACCOUNT);
+    YjsWS.closeAll(storedUserID);
 
     return { status: 200 };
   } catch (e) {

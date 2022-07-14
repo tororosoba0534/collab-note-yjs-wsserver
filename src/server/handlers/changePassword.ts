@@ -38,8 +38,12 @@ export const changePassword = async (
     if (isNotSameHash(adminPassword, storedUserInfo[0].admin_hash)) {
       return { status: 403 };
     }
-    // if (storedUserInfo[0].hash === adminHash) {
-    if (!isNotSameHash(adminPassword, storedUserInfo[0].hash)) {
+    // // if (storedUserInfo[0].hash === adminHash) {
+    // if (!isNotSameHash(adminPassword, storedUserInfo[0].hash)) {
+    //   return { status: 409 };
+    // }
+
+    if (adminPassword === newPassword) {
       return { status: 409 };
     }
 
@@ -47,12 +51,12 @@ export const changePassword = async (
 
     const result: boolean = await DB.knex.transaction(async (trx) => {
       await trx<DBUsers>("users").where("id", userID).update({ hash: newHash });
-
-      const resultBroadcast = YjsWS.broadcastNotification(
-        userID,
-        yjsConsts.MESSAGE_CHANGE_PASSWORD
-      );
-      if (!resultBroadcast) return false;
+      YjsWS.broadcastNotification(userID, yjsConsts.MESSAGE_CHANGE_PASSWORD);
+      // const resultBroadcast = YjsWS.broadcastNotification(
+      //   userID,
+      //   yjsConsts.MESSAGE_CHANGE_PASSWORD
+      // );
+      // if (!resultBroadcast) return false;
 
       return true;
     });

@@ -44,14 +44,16 @@ export const changeUserID = async (
     const resultCU = await Sessions.updateUserID(oldUserID, newUserID);
     if (!resultCU) return { status: 500 };
 
-    const resultBroadcast = YjsWS.broadcastNotification(
-      oldUserID,
-      yjsConsts.MESSAGE_CHANGE_USER_ID
-    );
-    if (!resultBroadcast) return { status: 500 };
+    YjsWS.broadcastNotification(oldUserID, yjsConsts.MESSAGE_CHANGE_USER_ID);
+    // const resultBroadcast = YjsWS.broadcastNotification(
+    //   oldUserID,
+    //   yjsConsts.MESSAGE_CHANGE_USER_ID
+    // );
+    // if (!resultBroadcast) return { status: 500 };
 
-    const resultCloseConn = YjsWS.closeAll(oldUserID);
-    if (!resultCloseConn) return { status: 500 };
+    YjsWS.closeAll(oldUserID);
+    // const resultCloseConn = YjsWS.closeAll(oldUserID);
+    // if (!resultCloseConn) return { status: 500 };
 
     // const resultUpdateDocname = YDocsStore.updateDocname(oldUserID, newUserID);
     // if (!resultUpdateDocname) return { status: 500 };
