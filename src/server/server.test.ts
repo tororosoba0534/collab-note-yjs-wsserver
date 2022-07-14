@@ -126,6 +126,7 @@ describe("server", () => {
 
   describe("/personal/change-password with valid sessionID", () => {
     it.each([
+      ["testuser1", "passWord1", "passWord2", 204],
       ["testuser1", "password", "passWord2", 400],
       ["testuser1", "passWord3", "passWord4", 403],
       ["testuser1", "passWord2", "passWord2", 409],
@@ -145,6 +146,7 @@ describe("server", () => {
 
   describe("/personal/change-admin-password with valid sessionID", () => {
     it.each([
+      ["testuser1", "passWord3", "passWord3", 204],
       ["testuser1", "password", "passWord2", 400],
       ["testuser1", "passWord4", "passWord5", 403],
       ["testuser1", "passWord3", "passWord2", 409],

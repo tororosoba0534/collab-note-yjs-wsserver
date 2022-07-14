@@ -7,7 +7,7 @@ import { yjsConsts } from "../../yjs/yjsConsts";
 import { YjsWS } from "../../yjs/YjsWS";
 
 type ResultChangeAdminPassword = {
-  status: 200 | 400 | 401 | 403 | 409 | 500;
+  status: 200 | 204 | 400 | 401 | 403 | 409 | 500;
 };
 export const changeAdminPassword = async (
   sessionID: string,
@@ -26,6 +26,10 @@ export const changeAdminPassword = async (
     return { status: 400 };
   }
 
+  if (newAdminPassword === oldAdminPassword) {
+    return { status: 204 };
+  }
+
   try {
     const userID = await Sessions.token2UserID(sessionID);
     if (!userID) return { status: 401 };
@@ -42,6 +46,10 @@ export const changeAdminPassword = async (
     if (!isNotSameHash(newAdminPassword, storedUserInfo[0].hash)) {
       return { status: 409 };
     }
+
+    // if (!isNotSameHash(newAdminPassword, storedUserInfo[0].admin_hash)) {
+    //   return { status: 204 };
+    // }
 
     const newAdminHash = hashPassword(newAdminPassword);
     const result: boolean = await DB.knex.transaction(async (trx) => {

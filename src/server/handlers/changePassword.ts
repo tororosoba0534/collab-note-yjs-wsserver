@@ -7,7 +7,7 @@ import { yjsConsts } from "../../yjs/yjsConsts";
 import { YjsWS } from "../../yjs/YjsWS";
 
 type ResultChangePassword = {
-  status: 200 | 400 | 401 | 403 | 409 | 500;
+  status: 200 | 204 | 400 | 401 | 403 | 409 | 500;
 };
 export const changePassword = async (
   sessionID: string,
@@ -45,6 +45,10 @@ export const changePassword = async (
 
     if (adminPassword === newPassword) {
       return { status: 409 };
+    }
+
+    if (!isNotSameHash(newPassword, storedUserInfo[0].hash)) {
+      return { status: 204 };
     }
 
     const newHash = hashPassword(newPassword);
