@@ -61,7 +61,6 @@ export class Binary {
     const messageType = decoding.readVarUint(decoder);
     switch (messageType) {
       case yjsConsts.MESSAGE_SYNC: {
-        console.log("on message: sync");
         encoding.writeVarUint(encoder, yjsConsts.MESSAGE_SYNC);
         syncProtocol.readSyncMessage(decoder, encoder, doc, conn);
 
@@ -72,7 +71,6 @@ export class Binary {
         break;
       }
       case yjsConsts.MESSAGE_AWARENESS: {
-        // console.log("on message: awareness");
         const update = decoding.readVarUint8Array(decoder);
         // @ts-ignore
         REDIS.yjsPub.publishBuffer(doc.awarenessChannel, Buffer.from(update));

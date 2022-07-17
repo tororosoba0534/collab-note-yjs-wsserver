@@ -12,11 +12,9 @@ export const isDocIDValid = async (docID: string): Promise<boolean> => {
     const storedUsers = await DB.knex<DBUsers>("users").where("id", docID);
 
     if (storedUsers.length === 0) {
-      console.log("docID does not exist.");
       return false;
     }
 
-    console.log("docID exist.");
     return true;
   } catch (e) {
     renderError(e);

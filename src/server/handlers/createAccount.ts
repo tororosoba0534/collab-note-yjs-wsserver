@@ -39,8 +39,6 @@ export const createAccount = async (
         .where("id", userID)
         .forUpdate();
       if (stored.length !== 0) {
-        console.log("same ID already exists");
-
         return { status: 409 };
       }
 
@@ -50,7 +48,6 @@ export const createAccount = async (
         admin_hash: adminHash,
       });
 
-      console.log("resister succeeded.");
       return { status: 200 };
     });
 

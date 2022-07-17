@@ -21,7 +21,6 @@ describe("server", () => {
 
     const res = await request(server).get("/test");
     expect(res.statusCode).toBe(200);
-    console.log(`res.body: ${JSON.stringify(res.body)}`);
     expect(res.body.hello).toBe("Hello from server!");
   });
 
@@ -72,23 +71,11 @@ describe("server", () => {
           .send({ userID, password });
 
         expect(res.statusCode).toBe(wantStatus);
-        // expect(typeof res.body.sessionID).toBe("string");
-        // if (res.statusCode === 200) {
-        //   sessionIDArr.push(res.body.sessionID);
-        //   console.log(`sessionIDArr: ${sessionIDArr}`);
-        //   console.log(`sessionIDArr[0]: ${sessionIDArr[0]}`);
-        //   console.log(`sessionIDArr[1]: ${sessionIDArr[1]}`);
-        // }
-        // console.log(`res.body.sessionID: ${res.body.sessionID}`);
-        // sessionIDArr.push(res.body.sessionID);
         if (res.statusCode === 200) {
           sessions[userID] = res.body.sessionID;
         }
       }
     );
-    // it("confirm sessionIDs existance", () => {
-    //   expect(sessionIDArr.length).toBe(2);
-    // });
   });
 
   describe("/personal/check-auth with valid sessionID", () => {

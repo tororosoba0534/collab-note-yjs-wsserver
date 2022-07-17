@@ -21,12 +21,10 @@ export const login = async (
     const storedUserData = await DB.knex<DBUsers>("users")
       .where("id", userID)
       .then((stored) => {
-        console.log(`user data in postgres: ${JSON.stringify(stored)}`);
         return stored;
       });
 
     if (storedUserData.length === 0) {
-      console.log("user does NOT exist.");
       return { status: 401, sessionID: "" };
     }
     const storedHash = storedUserData[0].hash;
