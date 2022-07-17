@@ -43,7 +43,7 @@ const config: ConfigType = {
         : "http://localhost:3000",
   },
 
-  SESSION_EXPIRATION_TIME: 5 * 60, // seconds
+  SESSION_EXPIRATION_TIME: 60 * 60, // seconds
 };
 
 export default config;
