@@ -56,7 +56,7 @@ export class YjsDB {
     docname: string,
     update: Uint8Array
   ): Promise<void> => {
-    console.log(`persisted update: ${update}`);
+    // console.log(`persisted update: ${update}`);
 
     await DB.knex("yjs_updates").insert({ user_id: docname, update });
   };
