@@ -1,6 +1,16 @@
 # Welcome to Collab-Note-YJS !!!
 
-Collab-Note-YJS is a multi-repo project which divided by two repositories (frontend and backend). This repository is the **_backend_** part. [You can access deployed project from here!](https://collab-note-yjs.herokuapp.com/)
+Collab-Note-YJS is a multi-repo project which divided by two repositories (frontend and backend). This repository is the **_backend_** part.
+
+## Deployed app
+
+[You can access deployed project from here!](https://collab-note-yjs.herokuapp.com/)
+
+**⚠️ CAUTION!!!**
+
+`*.herokuapp.com` domain is included in [Public Suffix List](https://publicsuffix.org/) and app in the domain are generally prevented from setting Cookies ([see here](https://devcenter.heroku.com/articles/cookies-and-herokuapp-com)). Now Collab-Note-YJS is deployed in the `*.herokuapp.com` domain and meets **lower security level** than when using Cookies.
+
+So please do **NOT** write secure information in this app.
 
 ## Tech stack
 
