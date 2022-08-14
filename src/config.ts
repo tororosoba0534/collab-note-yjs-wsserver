@@ -44,8 +44,8 @@ const config: ConfigType = {
         : "http://localhost:3000",
   },
 
-  SESSION_EXPIRATION_TIME: 60 * 60, // seconds
-  EXPIRED_SESSIONS_DELETE_INTERVAL: 30 * 60 * 1000, // ms
+  SESSION_EXPIRATION_TIME: 30, // seconds
+  EXPIRED_SESSIONS_DELETE_INTERVAL: 10 * 1000, // ms
 };
 
 export default config;
