@@ -19,7 +19,7 @@ setInterval(async () => {
   } catch (e) {
     console.error(error2String(e));
   }
-}, config.EXPIRED_SESSIONS_DELETE_INTERVAL);
+}, config.SESSION_EXPIRATION_TIME * 1000);
 
 server.listen(config.server.PORT, () => {
   console.log("Listen on port: ", config.server.PORT);
