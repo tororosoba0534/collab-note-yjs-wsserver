@@ -17,6 +17,7 @@ type ConfigType = {
     readonly ORIGIN: string;
   };
   readonly SESSION_EXPIRATION_TIME: number;
+  readonly EXPIRED_SESSIONS_DELETE_INTERVAL: number;
 };
 
 const config: ConfigType = {
@@ -44,6 +45,7 @@ const config: ConfigType = {
   },
 
   SESSION_EXPIRATION_TIME: 60 * 60, // seconds
+  EXPIRED_SESSIONS_DELETE_INTERVAL: 30 * 60 * 1000, // ms
 };
 
 export default config;
