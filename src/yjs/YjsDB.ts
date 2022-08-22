@@ -27,23 +27,26 @@ export class YjsDB {
           }
         });
 
-        const [mergedUpdates] = await Promise.all([
-          DB.knex<DBUpdate>("yjs_updates")
-            .transacting(trx)
-            .insert({
-              user_id: doc.name,
-              update: Y.encodeStateAsUpdate(dbYDoc),
-            })
-            .returning("*"),
-          DB.knex("yjs_updates")
-            .transacting(trx)
-            .where("user_id", doc.name)
-            .whereIn(
-              "id",
-              updates.map(({ id }) => id)
-            )
-            .delete(),
-        ]);
+        const mergedUpdates = await DB.knex<DBUpdate>("yjs_updates")
+          .transacting(trx)
+          .insert({
+            user_id: doc.name,
+            update: Y.encodeStateAsUpdate(dbYDoc),
+          })
+          .returning("*");
+
+        await DB.knex("yjs_updates")
+          .transacting(trx)
+          .where("user_id", doc.name)
+          .whereIn(
+            "id",
+            updates.map(({ id }) => id)
+          )
+          .delete();
+
+        // mergedUpdates.forEach((update, index) => {
+        //   console.log(`mergedUpdates[${index}]: ${JSON.stringify(update)}`);
+        // });
 
         return mergedUpdates;
       } else {

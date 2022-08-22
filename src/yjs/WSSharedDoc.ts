@@ -12,7 +12,7 @@ const updateHandler = async (
   origin: any,
   doc: WSSharedDoc
 ): Promise<void> => {
-  console.log("Y.Doc updateHandler called!");
+  // console.log("Y.Doc updateHandler called!");
   let shouldPersist = false;
 
   if (origin instanceof WebSocket && doc.conns.has(origin)) {
@@ -86,7 +86,7 @@ class WSSharedDoc extends Y.Doc {
         // as an update directly
 
         if (channelId === this.name) {
-          console.log("sub of sync");
+          // console.log("sub of sync");
 
           Y.applyUpdate(this, update, REDIS.yjsSub);
         } else if (channelId === this.awarenessChannel) {
